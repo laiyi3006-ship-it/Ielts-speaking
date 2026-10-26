@@ -29,6 +29,14 @@
   --good:#5CC27E; --warn:#E9A445; --bad:#F07A70; --good-soft:#173322; --warn-soft:#372812; --bad-soft:#3D1D1A;
   color-scheme:dark}
 *{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+[hidden]{display:none!important}
+body{margin:0}
+button,input,select,textarea{-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}
+input[type=checkbox]{-webkit-appearance:auto;appearance:auto;width:20px;height:20px;margin:0;accent-color:var(--accent);flex:none}
+.check{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;font-weight:500;cursor:pointer}
+.check input{margin-top:2px}
+.check small{display:block;font-weight:400;color:var(--muted);font-size:13px}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
 .wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
@@ -51,17 +59,20 @@ button.primary{background:var(--accent);color:var(--accent-ink);border-color:var
 button.primary:hover{filter:brightness(1.08)}
 button.ghost{background:transparent}
 button:disabled{opacity:.5;cursor:not-allowed}
-textarea,select,input[type=text]{font:inherit;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px;width:100%}
+textarea,select,input[type=text],input[type=password]{font:inherit;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px;width:100%}
 textarea{min-height:90px;resize:vertical}
 label{font-weight:500}
 
 /* header */
-.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.top .mode-pill{margin-top:2px}
 .mode-pill{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
 .mode-pill.upload{background:var(--warn-soft);color:var(--warn)}
 
 /* home */
-.choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.choice-grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:600px){.choice-grid{grid-template-columns:repeat(3,1fr)}}
+.choice.main{grid-column:1/-1}
 .choice{text-align:left;display:flex;flex-direction:column;gap:4px;padding:16px;min-height:auto}
 .choice b{font-size:16px}
 .choice span{font-weight:400;color:var(--muted);font-size:13px}
@@ -88,7 +99,8 @@ label{font-weight:500}
 @keyframes pulse{50%{opacity:.25}}
 @media (prefers-reduced-motion: reduce){.rec-dot::before{animation:none}}
 .live-text{font-size:14px;color:var(--muted);min-height:1.6em;max-height:7em;overflow:auto}
-.meter{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.meter-row{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;font-size:12px;color:var(--muted)}
+.meter{height:4px;border-radius:2px;background:var(--line);overflow:hidden}
 .meter i{display:block;height:100%;background:var(--accent);width:0;transition:width .08s}
 
 /* results */
@@ -108,6 +120,14 @@ label{font-weight:500}
 .metrics th,.metrics td{text-align:left;padding:8px 6px;border-top:1px solid var(--line);vertical-align:top}
 .metrics th{font-weight:500;color:var(--muted);font-size:12px;letter-spacing:.04em;text-transform:uppercase;border-top:0}
 .metrics td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.metrics td.key{white-space:nowrap;font-weight:500}
+.ind{display:grid;grid-template-columns:1fr auto;gap:4px 14px;padding:12px 0;border-top:1px solid var(--line)}
+.ind:first-child{border-top:0;padding-top:0}
+.ind .lab{font-weight:600}
+.ind .lab .tag{margin-left:4px}
+.ind .sub{grid-column:1;font-size:13px;color:var(--muted)}
+.ind .val{grid-column:2;grid-row:1/span 2;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.ind .val b{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
 .tbl{overflow-x:auto}
 .state{font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
 .state.good{background:var(--good-soft);color:var(--good)}
@@ -129,6 +149,9 @@ label{font-weight:500}
 details{border-top:1px solid var(--line);padding-top:10px}
 summary{cursor:pointer;font-weight:600}
 audio{width:100%}
+.visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);border:0}
+label.btn{display:inline-flex;align-items:center;justify-content:center}
+label.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .upload-slot{border:1px dashed var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px}
 .ok{color:var(--good);font-weight:600}
 .err{color:var(--bad);font-weight:500}
@@ -746,6 +769,7 @@ function renderHome(){
   const vs = voices();
   render(`
   ${env.live ? `<div class="notice info">麥克風已啟用。每題作答都會即時錄音，結束後${whisper.usable()?"用 Whisper 轉成文字稿再分析":env.recog?"直接分析，文字稿由瀏覽器的語音辨識產生":"直接分析（這個瀏覽器不支援語音轉文字，詞彙與文法會改用音節估算）"}。</div></div>`
+    : !inArtifact ? `<div class="notice"><b>沒有取得麥克風權限。</b>請在瀏覽器網址列旁的設定（iPhone、iPad 是左邊的「ㄚA」或「大小」圖示 → 網站設定）把麥克風改成「允許」，再重新整理頁面。也可以先用手機的錄音 App 錄下回答，考完再上傳。</div>`
     : `<div class="notice"><b>這個頁面沒辦法直接使用麥克風。</b>可以照常考完全程，同時用手機的錄音 App（例如 iPhone「語音備忘錄」、Android「錄音機」）錄下自己的回答，考完再把三段錄音上傳分析。想要直接用麥克風即時錄音，請用手機或電腦的瀏覽器開啟完整版：<a href="${HOSTED_URL}" target="_blank" rel="noopener">${HOSTED_URL.replace("https://","")}</a></div>`}
   <section class="choice-grid">
     <button class="choice main" data-start="full"><b>完整模擬考</b><span>Part 1 → 2 → 3，約 11–14 分鐘</span></button>
@@ -756,11 +780,11 @@ function renderHome(){
   <section class="card">
     <h2>考官設定</h2>
     <div class="row">
-      <label class="row" style="gap:8px"><input type="checkbox" id="ttsOn" ${settings.tts?"checked":""} ${env.tts?"":"disabled"}> 考官唸出題目</label>
+      <label class="check" for="ttsOn"><input type="checkbox" id="ttsOn" ${settings.tts?"checked":""} ${env.tts?"":"disabled"}><span>考官唸出題目</span></label>
       ${vs.length?`<select id="voiceSel" style="width:auto;max-width:100%">${vs.map(v=>`<option ${v.name===settings.voice?"selected":""}>${esc(v.name)}</option>`).join("")}</select>`:""}
       <button class="ghost" id="ttsTest" ${env.tts?"":"disabled"}>試聽</button>
     </div>
-    ${inArtifact?"":`<label class="row" style="gap:8px"><input type="checkbox" id="whisperOn" ${settings.whisper?"checked":""}> 用 Whisper 產生文字稿（在你的瀏覽器裡執行，錄音不會上傳；第一次要下載約 80 MB）</label>`}
+    ${inArtifact?"":`<label class="check" for="whisperOn"><input type="checkbox" id="whisperOn" ${settings.whisper?"checked":""}><span>用 Whisper 產生文字稿<small>在你的瀏覽器裡執行，錄音不會上傳；第一次要下載約 80 MB</small></span></label>`}
     ${!env.live?`<p class="small muted">用手機錄音時，建議把考官聲音關掉，或戴耳機，避免考官的聲音被錄進去，影響停頓分析。</p>`:""}
   </section>
   ${inArtifact?"":`<section class="card">
@@ -774,10 +798,10 @@ function renderHome(){
     <h2>評分方式</h2>
     <div class="tbl"><table class="metrics">
       <tr><th>評分項目</th><th>依據</th></tr>
-      <tr><td>流暢與連貫</td><td>錄音：語速、停頓次數與長度、連續說話長度 <span class="tag audio">音訊</span>${aiAvailable()?` ＋ 連貫性 <span class="tag ai">Claude</span>`:""}</td></tr>
-      <tr><td>發音</td><td>錄音＋文字稿：發音速度、多出來的音節，以專家評分資料校準 <span class="tag audio">音訊</span></td></tr>
-      <tr><td>詞彙、文法</td><td>文字稿：用字多樣度、較少見的字、複句、句型種類、常見錯誤 <span class="tag rough">本機估算</span>${env.sample?` → 再交給 Claude 依官方分數描述評分 <span class="tag ai">Claude</span>`:`，也可以複製評分指令交給 Claude`}</td></tr>
-      <tr><td>總分</td><td>每項給整數分，四項平均後依官方規則取到 0.5</td></tr>
+      <tr><td class="key">流暢與連貫</td><td>錄音：語速、停頓次數與長度、連續說話長度 <span class="tag audio">音訊</span>${aiAvailable()?` ＋ 連貫性 <span class="tag ai">Claude</span>`:""}</td></tr>
+      <tr><td class="key">發音</td><td>錄音＋文字稿：發音速度、多出來的音節，以專家評分資料校準 <span class="tag audio">音訊</span></td></tr>
+      <tr><td class="key">詞彙、文法</td><td>文字稿：用字多樣度、較少見的字、複句、句型種類、常見錯誤 <span class="tag rough">本機估算</span>${env.sample?` → 再交給 Claude 依官方分數描述評分 <span class="tag ai">Claude</span>`:`，也可以複製評分指令交給 Claude`}</td></tr>
+      <tr><td class="key">總分</td><td>每項給整數分，四項平均後依官方規則取到 0.5</td></tr>
     </table></div>
     <details><summary>方法與資料來源</summary>${methodHtml()}</details>
   </section>
@@ -895,13 +919,13 @@ async function runStep(){
       <div class="clock-box"><div><div class="clock-label">${isTalk?"剩餘時間（講滿 2 分鐘最好）":"作答時間（建議 "+(s.part===1?"15–30":"40–60")+" 秒）"}</div><div class="clock" id="clk">${isTalk?"2:00":"0:00"}</div></div>
         <div id="recState" class="small muted">${settings.tts&&env.tts?"考官說話中…":""}</div></div>
       <div class="bar"><i id="barFill"></i></div>
-      ${env.live?`<div class="meter" aria-label="音量"><i id="lvl"></i></div><div class="live-text" id="liveText" aria-live="polite"></div>`:""}
-      <div class="row"><button class="primary" id="nextBtn" disabled>${state.i===state.steps.length-1?"結束考試":"下一題"}</button>
-        <button class="ghost" id="repeatBtn">再唸一次題目</button><button class="ghost" id="quitBtn">中止</button></div>
+      ${env.live?`<div class="meter-row"><span>麥克風</span><div class="meter" role="meter" aria-label="麥克風音量"><i id="lvl"></i></div></div><div class="live-text" id="liveText" aria-live="polite"></div>`:""}
+      <div class="row"><button class="primary" id="nextBtn" disabled>${state.i===state.steps.length-1?"結束考試":isTalk?"我講完了":"下一題"}</button>
+        ${isTalk?"":`<button class="ghost" id="repeatBtn">再唸一次題目</button>`}<button class="ghost" id="quitBtn">中止</button></div>
     </section>`);
   const notes = state.notes; if(isTalk && notes && $("#notesShow")) $("#notesShow").textContent="你的筆記："+notes;
   $("#quitBtn").onclick=async()=>{ stopTimer(); speechSynthesis?.cancel?.(); if(currentTake){ await currentTake.stop(); currentTake=null; } renderHome(); };
-  $("#repeatBtn").onclick=()=>speak(s.q || s.say);
+  const rb=$("#repeatBtn"); if(rb) rb.onclick=()=>{ const o=settings.tts; settings.tts=true; speak(s.q || s.say).then(()=>settings.tts=o); };
   await speak(s.say);
   if(state.view!=="exam"||state.steps[state.i]!==s) return;
   $("#recState").innerHTML = env.live ? `<span class="rec-dot">錄音中</span>` : "請開始作答";
@@ -934,12 +958,14 @@ function renderUploads(){
   const parts=[...new Set(state.steps.map(s=>s.part))];
   render(`<section class="card"><h2>上傳錄音</h2><p class="muted small">支援 m4a、mp3、wav、webm 等格式。${whisper.usable()?"文字稿不用填，Whisper 會自動產生；如果你自己貼了，會以你貼的為準。":"文字稿可以不填，但填了詞彙和文法的分析會比較準。"}</p>
     ${parts.map(p=>`<div class="upload-slot"><h3>Part ${p}</h3>
-      <input type="file" accept="audio/*,.m4a,.mp3,.wav,.webm,.ogg,.aac" id="f${p}">
+      <div class="row"><label class="btn" for="f${p}" role="button" tabindex="0">${state.uploads[p]?"換一個檔案":"選擇錄音檔"}</label>
+        <input type="file" accept="audio/*,.m4a,.mp3,.wav,.webm,.ogg,.aac" id="f${p}" class="visually-hidden"></div>
       <span class="small" id="fs${p}">${state.uploads[p]?`<span class="ok">已選擇 ${esc(state.uploads[p].name)}</span>`:""}</span>
       <label for="t${p}" class="small">文字稿（選填）</label><textarea id="t${p}" placeholder="把錄音 App 產生的英文文字稿貼在這裡">${esc(state.uploadText[p])}</textarea></div>`).join("")}
     <div class="row"><button class="primary" id="anBtn">開始分析</button><button class="ghost" id="homeBtn">回首頁</button></div>
     <div id="anMsg" class="small"></div></section>`);
   parts.forEach(p=>{
+    const lb=document.querySelector(`label[for="f${p}"]`); if(lb) lb.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); $("#f"+p).click(); } };
     $("#f"+p).onchange=e=>{ state.uploads[p]=e.target.files[0]||null; $("#fs"+p).innerHTML=state.uploads[p]?`<span class="ok">已選擇 ${esc(state.uploads[p].name)}</span>`:""; };
     $("#t"+p).oninput=e=>{ state.uploadText[p]=e.target.value; };
   });
@@ -1009,9 +1035,10 @@ function scaleHtml(v, ticks, min, max){
 function chip(v, na="需文字稿"){ return v==null ? `<span class="chip na">${na}</span>` : `<span class="chip">${Number.isInteger(v)?v:v.toFixed(1)}</span>`; }
 function indTable(f){
   if(!f?.inds?.length) return "";
-  return `<div class="tbl"><table class="metrics"><tr><th>指標</th><th>你的數值</th><th>對應分數</th></tr>
-    ${f.inds.map(i=>{ const [t,c]=bandState(i.band); return `<tr><td>${esc(i.label)} <span class="tag ${i.src==="audio"?"audio":"rough"}">${i.src==="audio"?"錄音":"文字稿"}</span><div class="small muted">${esc(i.sub||"")}</div></td><td class="num">${esc(i.value)}</td><td>${i.band!=null&&isFinite(i.band)?`<span class="state ${c}">${fmt1(i.band)}</span>`:`<span class="small muted">${i.value&&i.value!=="—"?"參考":"無資料"}</span>`}</td></tr>`; }).join("")}
-  </table></div>
+  return `<div>${f.inds.map(i=>{ const [,c]=bandState(i.band); const has=i.band!=null&&isFinite(i.band);
+    return `<div class="ind"><span class="lab">${esc(i.label)}<span class="tag ${i.src==="audio"?"audio":"rough"}">${i.src==="audio"?"錄音":"文字稿"}</span></span>
+      <span class="val"><b>${esc(i.value)}</b>${has?`<span class="state ${c}" title="這個指標對應的分數">${fmt1(i.band)} 分</span>`:`<span class="small muted">${i.value&&i.value!=="—"?"參考":"無資料"}</span>`}</span>
+      <span class="sub">${esc(i.sub||"")}</span></div>`; }).join("")}</div>
   ${f.caps.length?`<div class="stack" style="gap:4px">${f.caps.map(c=>`<div class="notice small">上限 ${c.max} 分：${esc(c.reason)}</div>`).join("")}</div>`:""}`;
 }
 function critCard(title, f, extra, aiNote){
@@ -1059,7 +1086,7 @@ function renderResults(){
   <section class="card">
     <h2>錄音與文字稿</h2>
     ${parts.map(p=>`<div class="stack"><h3>Part ${p.part}</h3>
-      ${p.takes.map((t,k)=>`<div class="stack" style="gap:6px">${t.q?`<div class="small"><b>Q${k+1}.</b> ${esc(t.q)}</div>`:""}${t.url?`<audio controls preload="none" src="${t.url}"></audio>`:""}
+      ${p.takes.map((t,k)=>`<div class="stack" style="gap:6px">${t.q?`<div class="small"><b>${p.part===2?"題卡":`Q${k+1}.`}</b> ${esc(t.q)}</div>`:""}${t.url?`<audio controls preload="none" src="${t.url}"></audio>`:""}
         ${t.whisper?.words?.length && !t.userTranscript?`<div class="transcript">${whisperHtml(t.whisper.words)}</div>`:t.transcript?`<div class="transcript">${highlightFillers(t.transcript)}</div><div><button class="ghost small" data-say="${esc(t.transcript)}">聽示範</button></div>`:`<div class="small muted">沒有文字稿</div>`}</div>`).join("")}
     </div>`).join("")}
     <p class="small muted">標色的是填充詞和重複字。${state.result.parts.some(p=>p.takes.some(t=>t.whisper?.words?.length))?`<span class="pz">/</span> 是句子之間的停頓，<span class="pz mid">‖</span> 是句子中間的停頓（多半在找字），游標停在上面可以看秒數。`:""}語音辨識常會自動略過 um、uh，實際次數可能更多。</p>
