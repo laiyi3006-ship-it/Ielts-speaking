@@ -317,12 +317,28 @@ class LiveTake {
 // Runs Whisper base.en (word-timestamp export) in a Web Worker with transformers.js. The model (~80 MB) is fetched from
 // Hugging Face once and cached by the browser; audio never leaves the device. Not used inside the Claude artifact,
 // whose sandbox cannot fetch the model.
-const HOSTED_URL = "https://laiyi3006-ship-it.github.io/ielts-speaking/";
+const HOSTED_URL = "https://laiyi3006-ship-it.github.io/Ielts-speaking/";
 const WHISPER_MODEL = "onnx-community/whisper-base.en_timestamped";
 const WHISPER_WORKER = `
 import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1";
 env.allowLocalModels = false;
 let asr = null;
+// Split long audio at the quietest point between 18 s and 28 s so each piece fits Whisper's 30 s window;
+// transcribing pieces separately avoids the repeated sentences that chunk merging can produce.
+function segments(x, sr) {
+  const hop = Math.round(sr * 0.03), maxLen = 28 * sr, minLen = 18 * sr, out = [];
+  let start = 0;
+  while (x.length - start > maxLen) {
+    let best = start + maxLen, bestE = Infinity;
+    for (let i = start + minLen; i + hop <= start + maxLen; i += hop) {
+      let e = 0; for (let k = 0; k < hop; k++) e += x[i + k] * x[i + k];
+      if (e < bestE) { bestE = e; best = i + (hop >> 1); }
+    }
+    out.push([start, best]); start = best;
+  }
+  out.push([start, x.length]);
+  return out;
+}
 self.onmessage = async (e) => {
   const { id, audio, model } = e.data;
   try {
@@ -330,8 +346,15 @@ self.onmessage = async (e) => {
       dtype: { encoder_model: "q8", decoder_model_merged: "q8" },
       progress_callback: (p) => self.postMessage({ type: "progress", p }),
     });
-    const out = await asr(audio, { return_timestamps: "word", chunk_length_s: 30, stride_length_s: 5 });
-    self.postMessage({ type: "result", id, text: out.text, words: out.chunks || [] });
+    const sr = 16000, words = []; let text = "";
+    for (const [a, b] of segments(audio, sr)) {
+      if (b - a < sr * 0.3) continue;
+      const out = await asr(audio.subarray(a, b), { return_timestamps: "word" });
+      const off = a / sr;
+      for (const w of out.chunks || []) words.push({ text: w.text, timestamp: [w.timestamp[0] + off, (w.timestamp[1] ?? w.timestamp[0]) + off] });
+      text += " " + out.text.trim();
+    }
+    self.postMessage({ type: "result", id, text: text.trim(), words });
   } catch (err) {
     self.postMessage({ type: "error", id, message: String(err && err.message || err) });
   }
@@ -357,12 +380,15 @@ async function to16kMono(buf){
 // Pauses between Whisper words: at a clause boundary (after punctuation or before a clause-opening word) they are
 // usually planning pauses; inside a clause they usually mean searching for a word or structure (descriptors, bands 7–8)
 const CLAUSE_OPENERS = new Set("and but so because which who whom whose where when while if although though then also or as since until unless whereas i we you they he she it there this that my our actually well basically honestly personally firstly secondly finally however um uh".split(" "));
+const CANT_END = new Set("the a an to of in on at with for from by about into than as my your his her their our its this these those some any every each no most more very really quite so too is are was were be been being am have has had will would can could should must might may do does did and but or because that which who if when while although i we they he she you there it's i'm i've i'd we're they're".split(" "));
 function pauseLocations(words){
   let mid=0, boundary=0; const marks=[];
   for(let i=1;i<words.length;i++){
     const prev=words[i-1], cur=words[i]; const g=(cur.timestamp?.[0]??0)-(prev.timestamp?.[1]??0);
     if(!(g>=0.3 && g<TURN_GAP)){ marks.push(null); continue; }
-    const atBoundary = /[.,?!;:]\s*$/.test(prev.text) || CLAUSE_OPENERS.has(cur.text.trim().toLowerCase().replace(/[^a-z']/g,""));
+    // Whisper often puts a full stop before any long pause, so a word that cannot end a clause wins over punctuation
+    const pw = prev.text.trim().toLowerCase().replace(/[^a-z']/g,"");
+    const atBoundary = !CANT_END.has(pw) && (/[.,?!;:]\s*$/.test(prev.text) || CLAUSE_OPENERS.has(cur.text.trim().toLowerCase().replace(/[^a-z']/g,"")));
     atBoundary ? boundary++ : mid++; marks.push({gap:g, mid:!atBoundary});
   }
   return {mid, boundary, marks};

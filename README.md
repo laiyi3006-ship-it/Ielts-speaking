@@ -2,7 +2,7 @@
 
 雅思口說 Part 1–3 模擬考，全部在瀏覽器裡執行：考官唸題、計時、錄音，考完依 IELTS 官方評分規則給四項分數和總分。
 
-開啟：https://laiyi3006-ship-it.github.io/ielts-speaking/
+開啟：https://laiyi3006-ship-it.github.io/Ielts-speaking/
 
 ## 功能
 
