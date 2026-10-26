@@ -1,0 +1,1165 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>IELTS 口說模考室</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap">
+<style>
+/* Layout: one narrow exam-booklet column; the examiner's card on top, the candidate's controls below, results as a marked script. */
+:root{
+  --bg:#EDF0F2; --surface:#FFFFFF; --surface-2:#F5F7F8; --line:#D5DBE0;
+  --ink:#15212B; --muted:#5A6873; --accent:#0E6E73; --accent-ink:#FFFFFF; --accent-soft:#DCEDEE;
+  --timer:#B86A00; --timer-soft:#F6E8D3;
+  --good:#1F7A3E; --warn:#A86200; --bad:#B3261E; --good-soft:#DDF0E3; --warn-soft:#F7EAD6; --bad-soft:#F6DEDB;
+  --f-display:"Newsreader", Georgia, "Noto Sans TC", serif;
+  --f-body:"IBM Plex Sans","Noto Sans TC",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1519; --surface:#172026; --surface-2:#1C272E; --line:#2C3A43;
+  --ink:#E4EAEE; --muted:#97A6B0; --accent:#4FB3B8; --accent-ink:#06282A; --accent-soft:#16383B;
+  --timer:#F0A33A; --timer-soft:#3A2A12;
+  --good:#5CC27E; --warn:#E9A445; --bad:#F07A70; --good-soft:#173322; --warn-soft:#372812; --bad-soft:#3D1D1A;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1519; --surface:#172026; --surface-2:#1C272E; --line:#2C3A43;
+  --ink:#E4EAEE; --muted:#97A6B0; --accent:#4FB3B8; --accent-ink:#06282A; --accent-soft:#16383B;
+  --timer:#F0A33A; --timer-soft:#3A2A12;
+  --good:#5CC27E; --warn:#E9A445; --bad:#F07A70; --good-soft:#173322; --warn-soft:#372812; --bad-soft:#3D1D1A;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{text-wrap:balance;margin:0;line-height:1.25}
+h1{font-family:var(--f-display);font-weight:600;font-size:clamp(28px,6vw,38px);letter-spacing:-.01em}
+h2{font-size:19px;font-weight:600}
+h3{font-size:15px;font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.stack{display:flex;flex-direction:column;gap:10px}
+button,.btn{font:inherit;font-weight:600;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;cursor:pointer;min-height:44px}
+button:hover{border-color:var(--accent)}
+button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button.primary:hover{filter:brightness(1.08)}
+button.ghost{background:transparent}
+button:disabled{opacity:.5;cursor:not-allowed}
+textarea,select,input[type=text]{font:inherit;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px;width:100%}
+textarea{min-height:90px;resize:vertical}
+label{font-weight:500}
+
+/* header */
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.mode-pill{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.mode-pill.upload{background:var(--warn-soft);color:var(--warn)}
+
+/* home */
+.choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.choice{text-align:left;display:flex;flex-direction:column;gap:4px;padding:16px;min-height:auto}
+.choice b{font-size:16px}
+.choice span{font-weight:400;color:var(--muted);font-size:13px}
+.choice.main{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.choice.main span{color:inherit;opacity:.85}
+
+/* exam */
+.progress{display:flex;gap:6px}
+.progress div{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.progress div.done{background:var(--accent)}
+.progress div.now{background:var(--timer)}
+.examiner{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.examiner .q{font-family:var(--f-display);font-size:clamp(21px,4.6vw,27px);font-weight:500;line-height:1.35}
+.cue{border:1.5px dashed var(--line);border-radius:8px;padding:16px;background:var(--surface-2)}
+.cue .q{font-size:clamp(19px,4vw,23px)}
+.cue ul{margin:8px 0 0;padding-left:20px}
+.clock{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:clamp(40px,11vw,60px);font-weight:600;color:var(--timer);line-height:1}
+.clock-box{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--timer-soft);border-radius:10px;padding:14px 18px}
+.clock-label{font-size:13px;color:var(--ink);font-weight:500}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--timer);width:0}
+.rec-dot{display:inline-flex;align-items:center;gap:8px;font-weight:600;color:var(--bad);font-size:14px}
+.rec-dot::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--bad);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.25}}
+@media (prefers-reduced-motion: reduce){.rec-dot::before{animation:none}}
+.live-text{font-size:14px;color:var(--muted);min-height:1.6em;max-height:7em;overflow:auto}
+.meter{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent);width:0;transition:width .08s}
+
+/* results */
+.band-hero{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.band-num{font-family:var(--f-display);font-size:64px;font-weight:600;line-height:1}
+.crit{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.crit:first-child{border-top:0}
+.crit .name{font-weight:600}
+.crit .how{grid-column:1/-1;font-size:13px;color:var(--muted)}
+.chip{font-family:var(--f-mono);font-weight:600;font-size:15px;padding:4px 10px;border-radius:6px;background:var(--surface-2);border:1px solid var(--line);font-variant-numeric:tabular-nums}
+.chip.na{font-family:var(--f-body);font-size:12px;color:var(--muted)}
+.tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;padding:2px 8px;border-radius:999px;vertical-align:middle}
+.tag.audio{background:var(--accent-soft);color:var(--accent)}
+.tag.ai{background:var(--timer-soft);color:var(--timer)}
+.tag.rough{background:var(--warn-soft);color:var(--warn)}
+.metrics{width:100%;border-collapse:collapse;font-size:14px}
+.metrics th,.metrics td{text-align:left;padding:8px 6px;border-top:1px solid var(--line);vertical-align:top}
+.metrics th{font-weight:500;color:var(--muted);font-size:12px;letter-spacing:.04em;text-transform:uppercase;border-top:0}
+.metrics td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl{overflow-x:auto}
+.state{font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.state.good{background:var(--good-soft);color:var(--good)}
+.state.warn{background:var(--warn-soft);color:var(--warn)}
+.state.bad{background:var(--bad-soft);color:var(--bad)}
+.scale{position:relative;height:46px;margin:6px 4px 0}
+.scale .track{position:absolute;left:0;right:0;top:12px;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--bad-soft),var(--warn-soft),var(--good-soft))}
+.scale .tick{position:absolute;top:8px;width:1px;height:14px;background:var(--muted)}
+.scale .tick span{position:absolute;top:16px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted);white-space:nowrap}
+.scale .you{position:absolute;top:4px;width:14px;height:22px;margin-left:-7px;border-radius:4px;background:var(--accent);border:2px solid var(--surface)}
+.transcript{font-size:15px;line-height:1.7;background:var(--surface-2);border-radius:8px;padding:12px;overflow-wrap:anywhere}
+.pz{font-family:var(--f-mono);font-weight:600;color:var(--muted)}
+.pz.mid{color:var(--bad)}
+.transcript mark{background:var(--warn-soft);color:var(--warn);border-radius:3px;padding:0 2px}
+.fb-list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.fix{display:grid;grid-template-columns:1fr;gap:2px;padding:10px 12px;border-radius:8px;background:var(--surface-2)}
+.fix s{color:var(--bad)}
+.fix b{color:var(--good);font-weight:600}
+details{border-top:1px solid var(--line);padding-top:10px}
+summary{cursor:pointer;font-weight:600}
+audio{width:100%}
+.upload-slot{border:1px dashed var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.ok{color:var(--good);font-weight:600}
+.err{color:var(--bad);font-weight:500}
+.hist{width:100%;border-collapse:collapse;font-size:14px}
+.hist td{padding:6px 4px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.notice{padding:12px 14px;border-radius:8px;background:var(--warn-soft);color:var(--ink);font-size:14px}
+.notice.info{background:var(--accent-soft)}
+ol.src{margin:0;padding-left:20px;font-size:13px;display:flex;flex-direction:column;gap:4px}
+</style>
+
+<div class="wrap" id="app">
+  <header class="top">
+    <div class="stack" style="gap:4px">
+      <span class="eyebrow">Speaking · Part 1 · 2 · 3</span>
+      <h1>IELTS 口說模考室</h1>
+    </div>
+    <span class="mode-pill" id="modePill">檢查麥克風中…</span>
+  </header>
+  <main id="view" class="stack" style="gap:20px"></main>
+  <footer class="muted small">本工具為練習用途，與 IELTS 官方無關。分數是依公開研究校準的估計值，不能代替真正考官。</footer>
+</div>
+
+<script>
+/* ===================== Question bank ===================== */
+const P1_START = [
+  {topic:"Work or study", qs:["Do you work or are you a student?","What do you like most about your job or your studies?","Is there anything you find difficult about it?","Would you like to change your job or subject in the future? Why?"]},
+  {topic:"Hometown", qs:["Where is your hometown?","What do you like about living there?","Has your hometown changed much in recent years?","Would you recommend your hometown to visitors? Why?"]},
+  {topic:"Accommodation", qs:["Do you live in a house or an apartment?","Which room in your home do you like the most? Why?","What would you like to change about your home?","Do you plan to live there for a long time?"]}
+];
+const P1_TOPICS = [
+  {topic:"Music", qs:["What kind of music do you like?","Did you learn to play an instrument as a child?","Do you prefer listening to music alone or with others?","Has your taste in music changed over the years?"]},
+  {topic:"Weekends", qs:["What do you usually do at weekends?","Do you prefer busy or relaxing weekends?","What did you do last weekend?","Are weekends different for you now compared with when you were a child?"]},
+  {topic:"Mobile phones", qs:["How often do you use your mobile phone?","What do you mainly use it for?","Could you live without your phone for a week?","Do you think children should have mobile phones?"]},
+  {topic:"Food", qs:["What is your favourite food?","Do you prefer eating at home or eating out?","Is there any food you didn't like as a child but enjoy now?","Do you often cook for yourself?"]},
+  {topic:"Weather", qs:["What's the weather like where you live?","What kind of weather do you like best?","Does the weather affect your mood?","Do you check the weather forecast often?"]},
+  {topic:"Reading", qs:["Do you enjoy reading?","What kinds of books do you read?","Do you prefer paper books or e-books?","Did you read a lot when you were younger?"]},
+  {topic:"Sleep", qs:["How many hours do you usually sleep?","Do you ever take naps during the day?","What do you do when you can't fall asleep?","Do you think people sleep less than they used to?"]},
+  {topic:"Transport", qs:["How do you usually get around your city?","Is public transport good where you live?","Do you prefer travelling by bus or by train?","How might transport change in the future?"]},
+  {topic:"Photos", qs:["Do you like taking photos?","What do you usually take photos of?","Do you print your photos or keep them on your phone?","Do you like being in photos yourself?"]},
+  {topic:"Friends", qs:["Do you prefer having a few close friends or many friends?","How often do you meet your friends?","What do you usually do together?","Is it easy to make new friends as an adult?"]},
+  {topic:"Shopping", qs:["Do you enjoy shopping?","Do you prefer shopping online or in shops?","What was the last thing you bought?","Do you ever buy things you don't really need?"]},
+  {topic:"Plants", qs:["Do you keep any plants at home?","Did you grow plants when you were a child?","Are there many parks or green spaces near you?","Why do you think some people enjoy gardening?"]}
+];
+const CARDS = [
+  {title:"Describe a skill you learned that took a long time.", pts:["what the skill is","when and how you learned it","why it took a long time","and explain how you feel about this skill now."],
+   p3theme:"learning skills", p3:["Why do some people give up learning a new skill?","Is it better to learn skills from a teacher or by yourself?","Which skills are most important for young people today?","Do you think schools should teach more practical skills?","How has technology changed the way people learn?"]},
+  {title:"Describe a place you visited that you would like to go back to.", pts:["where it is","when you went there","what you did there","and explain why you would like to return."],
+   p3theme:"travel and tourism", p3:["Why do people like to visit the same place more than once?","What are the benefits of tourism for a local area?","Can tourism cause problems for a city?","How do you think travel will change in the next twenty years?"]},
+  {title:"Describe a person who has influenced you.", pts:["who this person is","how you know them","what they have done","and explain how they influenced you."],
+   p3theme:"role models", p3:["Who do young people look up to these days?","Should famous people be role models?","Do parents influence children more than teachers do?","Why do some people choose bad role models?"]},
+  {title:"Describe a time you helped someone.", pts:["who you helped","when it happened","how you helped them","and explain how you felt about it."],
+   p3theme:"helping others", p3:["Why are some people more willing to help others than others?","Should children be taught to help others? How?","Do people help their neighbours less than in the past?","What is the role of volunteers in society?"]},
+  {title:"Describe a piece of technology you find useful.", pts:["what it is","when you started using it","what you use it for","and explain why it is useful to you."],
+   p3theme:"technology", p3:["How has technology changed the way people communicate?","Do older people find it hard to use new technology?","Is it possible to depend too much on technology?","What kinds of technology might we use in the future?"]},
+  {title:"Describe a book or film that made a strong impression on you.", pts:["what it was","when you read or watched it","what it was about","and explain why it impressed you."],
+   p3theme:"books and films", p3:["Why do people enjoy watching films?","Do you think reading is less popular than it used to be?","Should films be based on real events?","How do films influence the way people think?"]},
+  {title:"Describe a goal you hope to achieve in the future.", pts:["what the goal is","when you set this goal","what you need to do to achieve it","and explain why it is important to you."],
+   p3theme:"goals and ambition", p3:["Is it important for young people to have clear goals?","Why do some people fail to achieve their goals?","Should parents set goals for their children?","Is success mainly about hard work or luck?"]},
+  {title:"Describe a time you were very busy.", pts:["when it was","what you had to do","how you managed your time","and explain how you felt during that period."],
+   p3theme:"work and stress", p3:["Why are people busier today than in the past?","How can people balance work and free time?","Do you think a four-day work week is a good idea?","What causes stress at work?"]},
+  {title:"Describe an interesting conversation you had with someone.", pts:["who you talked with","when and where it happened","what you talked about","and explain why it was interesting."],
+   p3theme:"communication", p3:["Do people talk face to face less than before?","What makes someone a good listener?","Is it easier to talk to strangers online or in person?","Why do some people find it hard to express their opinions?"]},
+  {title:"Describe a public place in your city that you like.", pts:["where it is","what it looks like","what people do there","and explain why you like it."],
+   p3theme:"public spaces", p3:["Why are public spaces important in cities?","Should the government spend more money on parks?","How could public places be made safer?","Do young and old people use public spaces differently?"]}
+];
+
+/* ===================== Calibration (see "方法與資料來源") ===================== */
+// Speech rate anchors: LINDSEI learner corpus (B2 118 wpm, C1 142 wpm, native 174 wpm), mapped onto IELTS bands
+// with the commonly cited CEFR↔IELTS alignment (B1≈4–5, B2≈5.5–6.5, C1≈7–8). B1 anchor from "≤100 wpm" guidance.
+const RATE_ANCHORS = [[55,3.5],[95,4.5],[118,6],[142,7.5],[174,9]];
+// Long pauses (≥1 s) per minute and mean length of run: heuristic curves shaped by the descriptors
+// (band 5 "relies on repetition, self-correction and/or slow speech"; band 7 "speaks at length without noticeable effort").
+const LONGPAUSE_ANCHORS = [[0,9],[1,8],[2.5,7],[4,6],[6,5],[9,4]];
+const MLR_ANCHORS = [[2,4],[3.5,5],[5,6],[7,7],[9.5,8],[12,9]];
+const PITCH_ANCHORS = [[0.8,4.5],[1.4,5.5],[2.0,6.5],[2.7,7],[3.5,7.5]];
+const CONF_ANCHORS = [[0.5,4.5],[0.7,5.5],[0.8,6.5],[0.88,7.5],[0.94,8.5]];
+const PAUSE_MIN = 0.25;   // silent pause threshold (s): 200–250 ms is the usual cut-off in L2 fluency research
+const TURN_GAP = 3.0;     // silences longer than this are treated as turn boundaries, not pauses
+const SYL_PER_WORD = 1.45;
+const FILLERS = ["um","umm","uh","uhh","er","erm","ah","hmm","you know","i mean","kind of","sort of","like"];
+// 2,500 most frequent English word forms (wordfreq, mixed spoken/written corpora); words outside it count as "less common"
+const COMMON = new Set("the to and of a in i is for that you it on with this was be as are have at he not by but from my or we an your all so his they me if one can will just like about up out what has when more do no were who had it's their there her which time get been would she new people how don't some also them now other i'm its our than good only after first him into know see two make over think any then could back these us want because go well said way most much very where even should may here need really did right work year years being day too going before off why made still take got many never those life say world down great through you're last s that's while best such love man home long look something use can't same used both every am come part state three around between always better find help high little old since another does own things under during game i've thing give house place school again next each mr without against didn't end found must show big feel sure team ever family keep might please put money free second someone away left number city days lot name night play until company doing few he's let real called different having set thought done however getting god government group looking public top women business care start system times week already anything case nothing person today change enough everything full live making point read there's told yet bad doesn't four hard mean once support tell including music power seen states stop water based believe call head men national small took white came far job side though try went yes actually american later less line order party run says service country open season shit thank children everyone general they're trying united using area black d following law makes together war whole car face five kind maybe per president story working course games health hope important least means news within able book early friends i'll information local oh post t thanks video young ago others social talk court fact given guys half hand isn't level mind often single become body coming control death food guy hours office pay problem south true we're almost fuck history known large lost m research room several started taking university win wrong along anyone else girl john matter pretty remember air bit friend hit needs nice playing probably saying understand yeah york class close comes i'd idea international looks past possible wanted b cause due happy human members months move question r series wait woman ask community data late leave north saw special watch won't c either fucking future light low million morning police short stay taken age buy deal rather reason red report soon third turn whether among check development form further heart minutes myself services yourself act although asked child fire fun living major media phone players art behind building easy gonna market near non plan political quite six talking west works according available e education final former front kids list ready sometimes son street wasn't bring college current example experience heard london meet program type baby chance father march process she's song study word across action clear gave gets himself month outside self students words board cost cut dr field held instead main moment mother road seems thinking town wants de department energy fight fine force hear issue played points price re rest results running shows space summer term wife america beautiful date goes killed land miss project sex shot site strong you'll account co especially eyes include june parents period position record similar total w above club common died film happened knew lead likely military perfect personal security share st tv what's won x april center county couple dead english happen hold industry inside issues online player private problems return rights sense star test view weeks break british companies event higher hour l member middle needed present result sorry takes training wish wouldn't answer boy design finally girls gold gone guess interest july king learn policy society added al alone average bank brought certain church east hands hot let's longer medical movie original park performance press received role sent themselves tried worked worth areas became bill books cool director exactly giving ground meeting n provide questions relationship september sound source usually value evidence follow lives official ok production rate reading round save stand stuff tax whatever amount blue countries david drive eat fall fast federal feeling felt green league management match model p picture size step trust you've central changes england forward groups hey key mom o page paid range review science trade uk upon various attention brother cannot character chief cup football hate haven't james led looked lower natural october property quality send style u vote amazing august blood china complete dog economic hell involved itself language lord november oil related serious stage terms title add article attack born couldn't damn decided decision enjoy entire french january kill met perhaps poor release situation technology turned website written choice code considered continue council cover currently door election european events f financial foreign hair increase legal lose michael pick race seem seven sign simple simply staff super union walk washington bed began built career changed crazy daily daughter december die difficult figure hospital knows loss modern ones paper parts popular published safe starting systems version voice whose writing army australia earth forget goal h huge internet listen okay practice rules sea sir success towards v waiting ways access aren't base below created deep followed la lol mark missing offer pass professional released risk schools sleep table ten truth ball box build card cases dark district europe george india mine minister note percent piece products recent seeing straight visit wall wanna we've wrote allowed boys culture etc fans february gives growth included married officer pain paul places respect response river rock shall speak specific standard tonight write y album century charge cold create effect eight except eye funny ii limited moving network peace provided recently required sales spent store student tomorrow track via watching weight addition ahead allow anti association beat brown capital chinese committee conference difference double expect gas island moved normal plans population potential pressure radio russian station text treatment western ass beginning california campaign certainly completely content credit cross described despite female focus g hi husband ice individual interesting j join kept leading loved message miles nearly particular previous quickly region reported section sort speed travel consider contact drop fair feet jesus kid link positive sale throughout tour welcome absolutely additional beyond conditions earlier extra forces immediately jobs leaving minute nature numbers quick sell significant studies unless winning agree canada clean computer construction episode favorite income justice levels manager movement photo posted safety san scene sold sounds spend statement sun teams ability announced asking calling coach collection continued costs definitely designed expected friday gun happens heavy includes knowledge particularly search subject train wide wow author centre claim dad developed fear fit generally german global goals gotta hotel interested judge lady leader letter lines material named nobody opportunity plus pre product regular secretary sister stories unit workers annual anymore bar battle brain contract degree families features finished floor france growing hurt image insurance majority meant opening opinion physical pro reach rule seriously sports stupid successful active administration approach australian biggest cancer civil dance defense direction independent master none reasons russia ship stock trump weekend wonder worst africa awesome band beach cash clearly commercial compared effort ended fan fighting imagine impact lack latest learning multiple older operation organization passed pictures protect secret senior spring sunday telling wear activities address analysis anyway bought calls choose christmas color commission competition details direct dream easily finish grand here's increased indian k literally luck marriage names necessary patients resources rich skin speaking supposed sweet thus touch yesterday caught closed congress damage directly disease doctor doubt drink driving established facebook feels fish gay germany glad greater grow largest machine notice overall planning professor programs records reports shown sit trip associated basic captain carry cars crime effective effects explain fully highly holding japan laws male mrs parties plant reality smith spot texas we'll winter worse advice agreement ain't award block broken caused challenge characters christian comment equipment eventually helped holy killing lived lots nation otherwise peter prices primary purpose rates responsible shop showing sick teacher theory uses william agency avoid camera catch cell coast comments drug economy environment executive foot hall mass meaning mission nine officers operations politics pop produced ran saturday status therefore trial truly weather activity app application claims coffee complex condition division evening flight freedom google heat highest interview library located location murder obama offered putting queen seconds showed sitting standing stars walking accept actual appear attempt broke channel distance eating exchange fat fell finding glass learned losing mobile northern opened placed powerful prior protection reached receive religious ride robert royal screen serve signed slow species speech traffic tree types vs wearing who's whom wonderful agreed airport animals appears begin benefits bottom cities demand engine everybody famous ideas investment keeping lie notes partner plays raised runs sad solution songs sources southern square stopped structure thomas traditional twice wind worry americans appeared becomes brand bus cent chicago count covered critical digital forced fourth fresh lake mental mentioned missed mostly mouth owner photos previously realize remain scale score separate smart starts surface throw tom totally twitter views wedding you'd acting actions african arms benefit budget click estate failed faith fashion feature fund generation hearing hill jack larger louis metal mid paris profile pull push returned rose seat seemed sexual shouldn't target understanding village agent animal apply authority basis becoming chris draw dude employees enter ex follows foundation gain http individuals japanese leaders memory prime projects ring rise selling served silver soul spread supply waste weird adult apparently artist chairman edition engineering grade happening healthy institute method mike monday nations obviously option prison provides remains senate smaller somebody stone strength users wild window winner arrived bag bet camp cast christ continues correct dangerous ed extremely firm greatest handle improve indeed leaves movies negative prevent removed richard spirit television till trouble usa videos advantage apart aware cat customers decide dinner dollars eastern fifth function gift helping herself impossible influence items joe los marketing mary materials nor produce progress proud require shooting shut standards tells thinks van wood background birth bridge carried charles classes completed concept copy dear dogs drugs efforts garden host housing inc israel journal labor leadership length lucky neither onto patient possibly prove rare setting skills software thousands tough units ad alive apple balance birthday bitch boss cards changing connection dress easier fellow florida horse knowing liked magic managed map net owned request stick they've turns vehicle volume wake aid beauty believed billion busy buying cells concerned conversation corner criminal cultural develop driver ends existing farm file fix fly frank guide images investigation mexico operating paying presented raise responsibility roll slightly suggest surprise technical thoughts treat unique variety violence weapons yours youth appreciate bigger breaking discovered dont dry edge evil excited forever funds helps henry injury iron lovely mad magazine martin models offers ordered parliament prepared reference religion sites somewhere stated strategy teachers web wine accounts angeles arm audience bay blog closer core democratic description dropped excellent exist figures forms guard honest issued joined jones lee lies likes medicine mention mountain nuclear orders port presence reaction reduce shoot sides solid spanish sport steps stress taste tea victory afternoon assistant britain citizens classic clothes decisions electric emergency entered entirely facts failure festival flat fuel harry hello houses ill initial introduced johnson kick links mail massive matters pair picked pieces plane plenty prince proper providing quarter regional scott session shape sky teaching toward transfer upper useful valley watched willing windows zone accident advanced alternative anywhere articles awards bear boat bringing capacity cheap climate communities discussion drinking duty fantastic feelings flying governor hasn't hundred industrial joint mix museum options path plants policies promise proposed purchase rain remove signs spending steel steve supporting terrible they'll tired treated turning vice warm afraid arts beer border canadian command crew crowd dating dick elements enemy ensure environmental filled fixed forest intelligence intended labour limit moon ocean powers profit proof republican soldiers suit wins women's appearance asian attorney banks behavior ben bodies brothers buildings chair creating debt domestic expensive grew historical homes honestly honor im jump launch listed minimum native noted originally planned pm ray sets suddenly supreme survey tech trees update user writer yellow younger ancient attacks charges combined communication connected contains download email ending exercise express flow formed girlfriend hero illegal increasing joke loan methods officials people's performed planet relationships restaurant scotland selected shared shopping soft stuck sugar suggested supported surprised taught transport weren't accepted adding affairs allows appeal applied appropriate artists boston ca confirmed device drama entry era factor feed golden grant grown heads hoping keeps lawyer legs lying measures mistake ms muslim organizations platform pool pulled regarding relations requires route saved schedule scientific shoes smoke squad teach testing tests values walked williams ya abuse angry businesses candidate comfortable concern developing discuss elections emotional et everywhere facilities falling fox guns hole holiday interests internal ireland italian italy jersey laugh leg letters liberal listening ll loves lunch max milk pack payment perform recorded relatively sector sharing snow storm streets strike studio sub weak youtube actor advance apartment asia chain chapter committed confidence cook cute equal fake finance focused hits identity journey kitchen korea leads maintain measure mm numerous owners posts properties quiet revealed specifically split task taxes taylor twenty urban acts affected aircraft applications approved approximately argument arrested claimed conflict considering corporate debate determined distribution documents escape extended factors faster fault fill films flowers friendly ladies lay lights millions mixed phase properly pure reduced requirements residents revenue sam sat secure smile strange talent temperature thousand tony troops truck votes ah authorities basically besides bird blame bob bowl causes chicken collected context coverage determine display dying elected examples experienced falls false fired forgot funding identified iii incredible inspired launched ma meat ministry mode neck noticed novel obvious passing positions remaining scored shirt shots slowly stadium stores surgery trading tuesday vision whenever worried zero alex allowing begins champion charged cream crisis daniel delivered editor estimated eu giant iran jail jim kingdom literature mayor minor moments opposite orange ourselves pages remained selection serving signal stream struggle suicide talked theme thursday tiny typically un unfortunately usual vehicles virginia voted voting walls wave alcohol assembly breakfast bright brings capable carrying chosen combination conservative customer cutting desire destroyed draft drunk essential fail familiar finds granted guilty humans hundreds id improved jewish largely laughing markets medium ohio opportunities papers perfectly recommend referred relevant seek sending solo spoke stands talks ticket unable upset wing world's answers birds bomb creative cycle dealing directed don educational entertainment extreme facility fields goods hang holds info mainly maximum newspaper offering painting republic reserve returns row salt scared scottish shares statistics switch territory threat tickets wales adults affect appointed armed aside assistance bell".split(" "));
+
+/* ===================== Utilities ===================== */
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pick = (arr, n) => { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a.slice(0,n); };
+const interp = (x, pts) => { if(x==null||!isFinite(x)) return NaN; if(x<=pts[0][0]) return pts[0][1]; for(let i=1;i<pts.length;i++){ if(x<=pts[i][0]){ const [x0,y0]=pts[i-1],[x1,y1]=pts[i]; return y0+(y1-y0)*(x-x0)/(x1-x0);} } return pts[pts.length-1][1]; };
+const clampBand = b => Math.max(1, Math.min(9, b));
+const half = b => Math.round(b*2)/2;
+// IELTS rounding: average of the four criteria, .25 rounds up to .5 and .75 rounds up to the next whole band
+const ieltsRound = x => { const f = Math.floor(x); const d = x - f; return d < .25 ? f : d < .75 ? f + .5 : f + 1; };
+const fmtTime = s => { s=Math.max(0,Math.ceil(s)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); };
+const fmt1 = x => (x==null||!isFinite(x)) ? "—" : (Math.round(x*10)/10).toString();
+const store = { get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} } };
+
+/* ===================== Environment ===================== */
+const env = { live:false, stream:null, recog: !!(window.SpeechRecognition||window.webkitSpeechRecognition), tts: "speechSynthesis" in window, sample:null };
+let settings = Object.assign({tts:true, voice:"", whisper:true}, store.get("ielts.settings",{}));
+function saveSettings(){ store.set("ielts.settings", settings); }
+// The viewer's own Anthropic API key (standalone/hosted version only); kept in this browser, sent only to api.anthropic.com
+let apiKey = store.get("ielts.apiKey", "");
+const inArtifact = !!window.claude?.use;
+const aiAvailable = () => !!(env.sample || (!inArtifact && apiKey));
+
+async function probeMic(){
+  if(!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder){ return false; }
+  try{
+    const st = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:false,autoGainControl:true}});
+    env.stream = st; return true;
+  }catch(e){ return false; }
+}
+function setModePill(){
+  const p = $("#modePill");
+  p.textContent = env.live ? "即時錄音模式" : "上傳錄音模式";
+  p.className = "mode-pill" + (env.live ? "" : " upload");
+}
+
+/* ===================== TTS examiner ===================== */
+function voices(){ return env.tts ? speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang)) : []; }
+function speak(text){
+  return new Promise(res=>{
+    if(!env.tts || !settings.tts){ res(); return; }
+    try{
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      const vs = voices(); const v = vs.find(v=>v.name===settings.voice) || vs.find(v=>/en-GB/i.test(v.lang)) || vs[0];
+      if(v){ u.voice=v; u.lang=v.lang; } else u.lang="en-GB";
+      u.rate = .95;
+      let done=false; const fin=()=>{ if(!done){done=true;res();} };
+      u.onend=fin; u.onerror=fin;
+      setTimeout(fin, 1500 + text.length*90);
+      speechSynthesis.speak(u);
+    }catch(e){ res(); }
+  });
+}
+
+/* ===================== Live recorder (mic + speech recognition) ===================== */
+class LiveTake {
+  constructor(){ this.chunks=[]; this.finals=[]; this.interim=""; this.confs=[]; this.stopped=false; }
+  async start(onText, onLevel){
+    const mime = ["audio/webm;codecs=opus","audio/webm","audio/mp4","audio/ogg"].find(m=>MediaRecorder.isTypeSupported?.(m)) || "";
+    this.rec = new MediaRecorder(env.stream, mime?{mimeType:mime}:undefined);
+    this.rec.ondataavailable = e=>{ if(e.data.size) this.chunks.push(e.data); };
+    this.rec.start(250);
+    // level meter
+    try{
+      this.ac = new (window.AudioContext||window.webkitAudioContext)();
+      const src = this.ac.createMediaStreamSource(env.stream); const an = this.ac.createAnalyser(); an.fftSize=1024; src.connect(an);
+      const buf = new Float32Array(an.fftSize);
+      const tick=()=>{ if(this.stopped) return; an.getFloatTimeDomainData(buf); let s=0; for(const x of buf) s+=x*x; onLevel?.(Math.min(1,Math.sqrt(s/buf.length)*6)); requestAnimationFrame(tick); };
+      tick();
+    }catch(e){}
+    // speech recognition
+    const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(SR){
+      const run=()=>{
+        if(this.stopped) return;
+        try{
+          const r = new SR(); this.sr=r; r.lang="en-US"; r.continuous=true; r.interimResults=true; r.maxAlternatives=1;
+          r.onresult = e=>{ let interim=""; for(let i=e.resultIndex;i<e.results.length;i++){ const res=e.results[i]; if(res.isFinal){ this.finals.push(res[0].transcript.trim()); if(res[0].confidence>0) this.confs.push(res[0].confidence); } else interim+=res[0].transcript; } this.interim=interim; onText?.(this.text()+(interim?" "+interim:"")); };
+          r.onerror = e=>{ if(e.error==="not-allowed"||e.error==="service-not-allowed") this.srDead=true; };
+          r.onend = ()=>{ if(!this.stopped && !this.srDead) setTimeout(run,120); };
+          r.start();
+        }catch(e){}
+      };
+      run();
+    }
+  }
+  text(){ return this.finals.join(" ").replace(/\s+/g," ").trim(); }
+  stop(){
+    return new Promise(res=>{
+      this.stopped=true;
+      try{ this.sr?.stop(); }catch(e){}
+      try{ this.ac?.close(); }catch(e){}
+      const finish=()=>{ setTimeout(()=>{ // give recognition a moment to flush the last final result
+        let t=this.text(); if(this.interim && !t.endsWith(this.interim.trim())) t=(t+" "+this.interim).trim();
+        res({blob:new Blob(this.chunks,{type:this.rec.mimeType||"audio/webm"}), transcript:t, confs:this.confs});
+      }, 500); };
+      if(this.rec.state!=="inactive"){ this.rec.onstop=finish; this.rec.stop(); } else finish();
+    });
+  }
+}
+
+/* ===================== Whisper (in-browser speech recognition) ===================== */
+// Runs Whisper base.en (word-timestamp export) in a Web Worker with transformers.js. The model (~80 MB) is fetched from
+// Hugging Face once and cached by the browser; audio never leaves the device. Not used inside the Claude artifact,
+// whose sandbox cannot fetch the model.
+const HOSTED_URL = "https://laiyi3006-ship-it.github.io/ielts-speaking/";
+const WHISPER_MODEL = "onnx-community/whisper-base.en_timestamped";
+const WHISPER_WORKER = `
+import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1";
+env.allowLocalModels = false;
+let asr = null;
+self.onmessage = async (e) => {
+  const { id, audio, model } = e.data;
+  try {
+    if (!asr) asr = await pipeline("automatic-speech-recognition", model, {
+      dtype: { encoder_model: "q8", decoder_model_merged: "q8" },
+      progress_callback: (p) => self.postMessage({ type: "progress", p }),
+    });
+    const out = await asr(audio, { return_timestamps: "word", chunk_length_s: 30, stride_length_s: 5 });
+    self.postMessage({ type: "result", id, text: out.text, words: out.chunks || [] });
+  } catch (err) {
+    self.postMessage({ type: "error", id, message: String(err && err.message || err) });
+  }
+};`;
+const whisper = {
+  worker:null, seq:0, pending:new Map(), onProgress:null, failed:false,
+  usable(){ return !inArtifact && settings.whisper && !this.failed && typeof Worker!=="undefined"; },
+  start(){
+    if(this.worker) return;
+    this.worker = new Worker(URL.createObjectURL(new Blob([WHISPER_WORKER],{type:"text/javascript"})), {type:"module"});
+    this.worker.onmessage = e => { const m=e.data; if(m.type==="progress"){ this.onProgress?.(m.p); return; }
+      const r=this.pending.get(m.id); if(!r) return; this.pending.delete(m.id); m.type==="result" ? r.res(m) : r.rej(new Error(m.message)); };
+    this.worker.onerror = e => { this.failed=true; for(const r of this.pending.values()) r.rej(new Error(e.message||"worker error")); this.pending.clear(); };
+  },
+  transcribe(audio){ this.start(); const id=++this.seq; return new Promise((res,rej)=>{ this.pending.set(id,{res,rej}); this.worker.postMessage({id, audio, model:WHISPER_MODEL}, [audio.buffer]); }); },
+};
+async function to16kMono(buf){
+  const len = Math.ceil(buf.duration*16000);
+  const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  const ctx = new OAC(1, len, 16000); const src = ctx.createBufferSource(); src.buffer = buf; src.connect(ctx.destination); src.start();
+  return (await ctx.startRendering()).getChannelData(0).slice();
+}
+// Pauses between Whisper words: at a clause boundary (after punctuation or before a clause-opening word) they are
+// usually planning pauses; inside a clause they usually mean searching for a word or structure (descriptors, bands 7–8)
+const CLAUSE_OPENERS = new Set("and but so because which who whom whose where when while if although though then also or as since until unless whereas i we you they he she it there this that my our actually well basically honestly personally firstly secondly finally however um uh".split(" "));
+function pauseLocations(words){
+  let mid=0, boundary=0; const marks=[];
+  for(let i=1;i<words.length;i++){
+    const prev=words[i-1], cur=words[i]; const g=(cur.timestamp?.[0]??0)-(prev.timestamp?.[1]??0);
+    if(!(g>=0.3 && g<TURN_GAP)){ marks.push(null); continue; }
+    const atBoundary = /[.,?!;:]\s*$/.test(prev.text) || CLAUSE_OPENERS.has(cur.text.trim().toLowerCase().replace(/[^a-z']/g,""));
+    atBoundary ? boundary++ : mid++; marks.push({gap:g, mid:!atBoundary});
+  }
+  return {mid, boundary, marks};
+}
+
+/* ===================== Audio analysis ===================== */
+function percentile(arr,p){ const a=Float32Array.from(arr).sort(); return a[Math.min(a.length-1,Math.max(0,Math.floor(p/100*(a.length-1))))]; }
+async function decodeBlob(blob){
+  const ab = await blob.arrayBuffer();
+  const ctx = new (window.AudioContext||window.webkitAudioContext)();
+  try{ return await new Promise((res,rej)=>{ const p=ctx.decodeAudioData(ab,res,rej); if(p&&p.then) p.then(res,rej); }); }
+  finally{ try{ctx.close();}catch(e){} }
+}
+function analyzeBuffer(buf){
+  const sr = buf.sampleRate, n = buf.length, ch = buf.numberOfChannels;
+  const f = Math.max(1, Math.round(sr/8000)), dsr = sr/f, m = Math.floor(n/f);
+  const x = new Float32Array(m);
+  const chans = []; for(let c=0;c<ch;c++) chans.push(buf.getChannelData(c));
+  for(let i=0;i<m;i++){ let s=0; for(let c=0;c<ch;c++){ const d=chans[c]; for(let k=0;k<f;k++) s+=d[i*f+k]; } x[i]=s/(f*ch); }
+  const hop = Math.round(dsr*0.01), win = Math.round(dsr*0.025), F = Math.max(0, Math.floor((m-win)/hop));
+  if(F < 50) return null;
+  const db = new Float32Array(F);
+  for(let i=0;i<F;i++){ let s=0; const o=i*hop; for(let k=0;k<win;k++){ const v=x[o+k]; s+=v*v; } db[i]=10*Math.log10(s/win+1e-10); }
+  const sm = new Float32Array(F); for(let i=0;i<F;i++){ let s=0,c=0; for(let k=-2;k<=2;k++){ const j=i+k; if(j>=0&&j<F){s+=db[j];c++;} } sm[i]=s/c; }
+  const floor = percentile(sm,10), peak = percentile(sm,97);
+  if(peak-floor < 8) return {empty:true};
+  const thr = floor + Math.max(6, (peak-floor)*0.33);
+  // speech mask with blip removal (<60 ms) and gap merging (<PAUSE_MIN)
+  let mask = Array.from(sm, v=>v>thr);
+  const segs=[]; let st=-1;
+  for(let i=0;i<=F;i++){ const on = i<F && mask[i]; if(on && st<0) st=i; if(!on && st>=0){ segs.push([st,i]); st=-1; } }
+  const merged=[];
+  for(const s of segs){ if(s[1]-s[0] < 6) continue; const last=merged[merged.length-1]; if(last && (s[0]-last[1])*0.01 < PAUSE_MIN) last[1]=s[1]; else merged.push([s[0],s[1]]); }
+  if(!merged.length) return {empty:true};
+  // pauses between runs
+  const pauses=[]; let turnGaps=0, turnGapTime=0;
+  for(let i=1;i<merged.length;i++){ const g=(merged[i][0]-merged[i-1][1])*0.01; if(g>=TURN_GAP){ turnGaps++; turnGapTime+=g; } else pauses.push(g); }
+  const span = (merged[merged.length-1][1]-merged[0][0])*0.01 - turnGapTime;
+  const phon = merged.reduce((a,s)=>a+(s[1]-s[0])*0.01,0);
+  const runs = merged.length;
+  // pitch (normalized autocorrelation on speech frames) for voicing + intonation range
+  const pw = Math.round(dsr*0.04), lagMin=Math.floor(dsr/400), lagMax=Math.ceil(dsr/75);
+  const f0 = new Float32Array(F); const voiced = new Uint8Array(F);
+  for(const [a,b] of merged){ for(let i=a;i<b;i++){ const o=i*hop; if(o+pw+lagMax>=m) break;
+    let e0=0; for(let k=0;k<pw;k++) e0+=x[o+k]*x[o+k]; if(e0<=0) continue;
+    let best=0,bl=0; for(let L=lagMin;L<=lagMax;L++){ let s=0,e1=0; for(let k=0;k<pw;k++){ const y=x[o+k+L]; s+=x[o+k]*y; e1+=y*y; } const r=s/Math.sqrt(e0*e1+1e-12); if(r>best){best=r;bl=L;} }
+    if(best>0.55 && bl>lagMin){ f0[i]=dsr/bl; voiced[i]=1; } } }
+  const f0s=[]; for(let i=0;i<F;i++) if(voiced[i]) f0s.push(f0[i]);
+  let pitchSD=null;
+  if(f0s.length>80){ const med=percentile(f0s,50); const st=f0s.map(v=>12*Math.log2(v/med)).filter(v=>Math.abs(v)<10); if(st.length>50){ const mu=st.reduce((a,b)=>a+b,0)/st.length; pitchSD=Math.sqrt(st.reduce((a,b)=>a+(b-mu)**2,0)/st.length); } }
+  // per-run intonation: runs of ≥1.2 s with a pitch range under 1 semitone (SD) sound flat; descriptors ask whether features are "sustained"
+  let longRuns=0, flatRuns=0;
+  for(const [a,b] of merged){ if((b-a)*0.01<1.2) continue; const v=[]; for(let i=a;i<b;i++) if(voiced[i]) v.push(f0[i]); if(v.length<40) continue;
+    const med=percentile(v,50); const st=v.map(q=>12*Math.log2(q/med)).filter(q=>Math.abs(q)<10); if(st.length<30) continue;
+    const mu=st.reduce((x,y)=>x+y,0)/st.length; const sd=Math.sqrt(st.reduce((x,y)=>x+(y-mu)**2,0)/st.length); longRuns++; if(sd<1.0) flatRuns++; }
+  // syllable nuclei: intensity peaks inside speech, ≥2 dB above surrounding dips, voiced, ≥90 ms apart (after de Jong & Wempe 2009)
+  let syl=0, lastPeak=-100;
+  for(const [a,b] of merged){
+    for(let i=a+1;i<b-1;i++){
+      if(!(sm[i]>=sm[i-1] && sm[i]>sm[i+1] && sm[i]>thr+2)) continue;
+      let lmin=sm[i]; for(let j=i-1;j>=Math.max(a,lastPeak,i-30);j--){ lmin=Math.min(lmin,sm[j]); if(sm[j]>sm[i]) break; }
+      if(i-30<a) lmin=Math.min(lmin,thr);
+      let rmin=sm[i]; for(let j=i+1;j<Math.min(b,i+30);j++){ rmin=Math.min(rmin,sm[j]); if(sm[j]>sm[i]) break; }
+      if(i+30>=b) rmin=Math.min(rmin,thr);
+      if(sm[i]-lmin < 2 || sm[i]-rmin < 2) continue;
+      let v=false; for(let k=-3;k<=3;k++) if(voiced[i+k]) v=true;
+      if(!v || i-lastPeak<9) continue;
+      syl++; lastPeak=i;
+    }
+  }
+  return {span, phon, runs, pauses, turnGaps, syl, pitchSD, voicedN:f0s.length, longRuns, flatRuns, duration:n/sr};
+}
+function mergeAnalyses(list){
+  const L = list.filter(a=>a && !a.empty);
+  if(!L.length) return null;
+  const sum=k=>L.reduce((s,a)=>s+a[k],0);
+  const sds=L.filter(a=>a.pitchSD!=null);
+  const pitchSD = sds.length ? sds.reduce((s,a)=>s+a.pitchSD*a.voicedN,0)/sds.reduce((s,a)=>s+a.voicedN,0) : null;
+  return {span:sum("span"), phon:sum("phon"), runs:sum("runs"), pauses:L.flatMap(a=>a.pauses), turnGaps:sum("turnGaps"), syl:sum("syl"), pitchSD: (pitchSD!=null&&isFinite(pitchSD))?pitchSD:null, voicedN:sum("voicedN"), longRuns:sum("longRuns"), flatRuns:sum("flatRuns")};
+}
+
+/* ===================== Transcript analysis ===================== */
+function tokenize(t){ return (t||"").toLowerCase().replace(/[^a-z'\s-]/g," ").split(/\s+/).filter(Boolean); }
+function transcriptStats(text){
+  const w = tokenize(text);
+  const lower = " "+w.join(" ")+" ";
+  let fillers=0; const found={};
+  for(const f of FILLERS){ if(f==="like") continue; const re=new RegExp("\\s"+f.replace(" ","\\s")+"(?=\\s)","g"); const c=(lower.match(re)||[]).length; if(c){ fillers+=c; found[f]=c; } }
+  let reps=0; for(let i=1;i<w.length;i++) if(w[i]===w[i-1] && w[i].length>0) reps++;
+  // MATTR (window 50) for lexical variety
+  let mattr=null; const W=50;
+  if(w.length>=W){ let tot=0,c=0; for(let i=0;i+W<=w.length;i++){ tot+=new Set(w.slice(i,i+W)).size/W; c++; } mattr=tot/c; }
+  else if(w.length>=20) mattr=new Set(w).size/w.length;
+  return {words:w.length, fillers, found, reps, mattr};
+}
+// Local vocabulary & grammar estimate from the transcript. Indicators follow the descriptors' wording
+// (LR: range, less common items, paraphrase; GRA: complex structures, range of tenses, error frequency);
+// curves are heuristic because no public study gives per-band values for them.
+const MATTR_ANCHORS = [[0.62,4.5],[0.70,5.5],[0.77,6.5],[0.83,7.5],[0.88,8.5]];
+const RARE_ANCHORS = [[4,4.5],[8,5.5],[12,6.5],[17,7.5],[22,8.5]];
+const SUB_ANCHORS = [[1.5,4.5],[3,5.5],[4.5,6.5],[6.5,7.5],[8.5,8.5]];
+const VARIETY_ANCHORS = [[0,3.5],[1,4.5],[3,5.5],[4,6.5],[6,7],[8,8]];
+const SUBORD = ["because","although","though","even though","while","whereas","unless","if","when","whenever","since","until","which","who","whom","whose","where","so that","as long as","in order to","rather than","despite","whether","as soon as","once"];
+const IRREG_PAST = "was were went had did made said got took came saw knew thought told gave found felt left kept began brought bought taught met ran wrote spoke grew became sat stood heard lost paid sent spent built understood chose".split(" ");
+const PP = "been gone done made seen known taken given written spoken eaten grown become chosen forgotten got gotten heard found told kept bought taught brought thought felt left lost met paid sent spent built understood begun broken driven fallen flown".split(" ");
+const GRAM_RULES = [
+  [/\b(he|she|it)\s+don'?t\b/gi, "he/she/it 要用 doesn't"],
+  [/\b(he|she|it)\s+(have|do|go|like|want|think|make|live|work|study)\b/gi, "第三人稱單數動詞要加 s"],
+  [/\b(didn'?t|doesn'?t|don'?t|did not|does not|do not)\s+(\w+ed|went|came|saw|got|took|made|had)\b/gi, "否定助動詞後面要接原形動詞"],
+  [/\b(more|most)\s+(better|easier|bigger|happier|cheaper|faster|worse|best)\b/gi, "比較級重複"],
+  [/\b(i|we|they)\s+(am|is|are)\s+agree\b/gi, "agree 是動詞，不用 be"],
+  [/\b(can|could|should|must|will|would|may|might)\s+to\b/gi, "情態動詞後面不加 to"],
+  [/\ba\s+(apple|hour|honest|interesting|important|old|amazing|idea|example|English|umbrella|elephant|art)\b/gi, "母音開頭要用 an"],
+  [/\b(discuss|emphasize|mention)\s+about\b/gi, "這個動詞後面不加 about"],
+  [/\b(people|children)\s+(is|was|has)\b/gi, "people / children 是複數"],
+  [/\b(explain|suggest)\s+(me|him|her|us|them)\b/gi, "explain/suggest 後面要加 to 再接人"],
+  [/\bvery\s+(like|enjoy|love)\b/gi, "要用 really like / like ... very much"],
+];
+function lexGram(text){
+  const raw = (text||"").replace(/[^A-Za-z'\s-]/g," ").split(/\s+/).filter(Boolean);
+  const lower = raw.map(w=>w.toLowerCase());
+  if(lower.length<15) return null;
+  const joined = " "+lower.join(" ")+" ";
+  // less common words: content tokens outside the common list; skip fillers, contractions, short words and capitalised names
+  const fillerSet = new Set(FILLERS.filter(f=>!f.includes(" ")));
+  let counted=0; const rare=new Set();
+  raw.forEach((w,i)=>{ const l=lower[i]; if(l.length<3||fillerSet.has(l)||l.includes("'")) return; if(i>0 && /^[A-Z]/.test(w) && w!=="I") return; counted++; if(!COMMON.has(l) && !COMMON.has(l.replace(/(ies)$/,"y").replace(/(es|s|ed|ing|ly)$/,""))) rare.add(l); });
+  let rareTokens=0; raw.forEach((w,i)=>{ if(rare.has(lower[i])) rareTokens++; });
+  const rarePct = rareTokens/Math.max(1,counted)*100;
+  const T = transcriptStats(text);
+  const n = lower.length;
+  // grammar range
+  let sub=0; for(const m of SUBORD){ sub += (joined.match(new RegExp("\\s"+m.replace(/ /g,"\\s")+"\\s","g"))||[]).length; }
+  sub += (joined.match(/\s(think|thought|say|said|know|knew|believe|feel|felt|hope|guess|realise|realize|realised|realized|is|was|mean|means)\sthat\s/g)||[]).length;
+  const subPer100 = sub/n*100;
+  const has = re => re.test(joined);
+  const feats = {
+    "過去式": has(/\s\w{3,}ed\s/) || IRREG_PAST.some(v=>joined.includes(" "+v+" ")),
+    "完成式": has(/\s(have|has|had|i've|we've|they've|you've|he's|she's|it's|that's|there's)\s(never\s|ever\s|already\s|just\s)?(\w+ed|been|gone|done|made|seen|known|taken|given|written|got|gotten|become|grown|learned|learnt)\s/),
+    "未來式": has(/\s(will|won't|i'll|we'll|going to|gonna)\s/),
+    "條件句": has(/\sif\s/) && has(/\s(would|could|might|i'd|we'd|they'd|will)\s/),
+    "被動式": has(new RegExp("\\s(am|is|are|was|were|be|been|being|get|got)\\s(\\w+ed|"+PP.join("|")+")\\s")),
+    "情態動詞": has(/\s(should|must|might|may|could|ought to|have to|has to)\s/),
+    "進行式": has(/\s(am|is|are|was|were|be|been|i'm|you're|we're|they're|he's|she's|it's)\s\w{2,}ing\s/),
+    "比較句型": has(/\s(more|less)\s\w+\sthan\s|\s\w+er\sthan\s|\sas\s\w+\sas\s/),
+    "關係子句": has(/\s(which|who|whose|where)\s/),
+  };
+  const variety = Object.values(feats).filter(Boolean).length;
+  const errors=[]; for(const [re,note] of GRAM_RULES){ const ms=(text||"").match(re); if(ms) ms.forEach(m=>errors.push({original:m,note})); }
+  const errPer100 = errors.length/n*100;
+  // bands
+  const shortCap = n<80 ? 6 : n<150 ? 7 : 9;   // a very short sample cannot show a wide range
+  const mattrB = T.mattr!=null ? interp(T.mattr, MATTR_ANCHORS) : 5;
+  const rareB = interp(rarePct, RARE_ANCHORS);
+  const lr = half(clampBand(Math.min(mattrB*.5 + rareB*.5, shortCap, 8)));
+  const subB = interp(subPer100, SUB_ANCHORS), varB = interp(variety, VARIETY_ANCHORS);
+  const penalty = Math.min(1.5, errPer100*0.4 + (T.reps/n*100)*0.1);
+  const accBonus = errors.length===0 && n>=60 ? 0.5 : 0;   // descriptors reward accuracy, not only range
+  const gra = half(clampBand(Math.min(subB*.5 + varB*.5 + accBonus - penalty, shortCap, 7.5)));
+  return {lr, gra, accBonus, mattr:T.mattr, mattrB, rarePct, rareB, rareWords:[...rare].slice(0,24), subPer100, subB, feats, variety, varB, errors, errPer100, penalty, words:n};
+}
+function whisperHtml(words){
+  const pl = pauseLocations(words);
+  return words.map((w,i)=>{ const m = i>0 ? pl.marks[i-1] : null;
+    const mark = m ? `<span class="pz ${m.mid?"mid":""}" title="停頓 ${m.gap.toFixed(1)} 秒">${m.mid?"‖":"/"}</span> ` : "";
+    return mark + highlightFillers(w.text.trim()); }).join(" ");
+}
+function highlightFillers(text){
+  let h = esc(text);
+  const list = FILLERS.filter(f=>f!=="like").sort((a,b)=>b.length-a.length);
+  const re = new RegExp("\\b("+list.map(f=>f.replace(" ","\\s")).join("|")+")\\b","gi");
+  return h.replace(re,"<mark>$1</mark>").replace(/\b(\w+)(\s+\1\b)+/gi, m=>"<mark>"+m+"</mark>");
+}
+
+/* ===================== Scoring ===================== */
+// Official rules applied here (IELTS.org / British Council / IDP):
+// - four criteria, equally weighted; the Speaking band is their average, rounded with the .25/.75 rule
+// - the public descriptors define whole bands only, so each criterion is reported as a whole band
+// - "a candidate must fully fit the positive features of the descriptor at a particular level":
+//   one weak indicator holds the criterion down (band = min(mean, weakest + 1))
+const REPAIR_ANCHORS = [[0.5,8],[1.5,7],[3,6],[5,5],[8,4]];
+const CONN_ANCHORS = [[0,4],[1,5],[2,6],[3,7],[4.5,8]];
+const DEV1_ANCHORS = [[8,4],[15,5],[25,6],[35,7],[45,8]];
+const DEV3_ANCHORS = [[15,4],[30,5],[50,6],[70,7],[90,8]];
+const IDIOM_ANCHORS = [[0,5],[0.3,6],[0.7,7],[1.2,8],[2,9]];
+const ERR_ANCHORS = [[0,8],[0.5,7],[1.5,6],[3,5],[5,4],[8,3]];
+const INTEL_ANCHORS = [[0.5,4],[0.65,5],[0.8,6],[0.9,7],[0.97,8]];
+const FLAT_ANCHORS = [[0.1,8],[0.25,7],[0.4,6],[0.6,5],[0.8,4]];
+// speechocean762 regression (adults, n=128): expert accuracy (0–10) from articulation rate and extra-syllable ratio
+const SO_MODEL = {a:9.408, art:1.039, ratio:-5.078};
+const SO_MODEL1 = {a:-0.649, art:2.427};   // articulation rate only (no transcript), r = 0.59
+// speechocean762 accuracy rubric ↔ IELTS pronunciation descriptors: 9–10 "excellent, no obvious mistakes" ≈ band 8;
+// 7–8 "good, a few mistakes" ≈ 6–7; 5–6 "understandable, many mistakes, meaning clear" ≈ 5; 3–4 "poor, serious mistakes" ≈ 4
+const SO_TO_BAND = [[2,3],[3.5,4],[5.5,5],[7,6],[8,7],[9.2,8],[10,8.5]];
+const sylCount = w => { w=w.toLowerCase().replace(/[^a-z]/g,""); if(!w) return 0; if(w.length<=3) return 1; w=w.replace(/(?:[^laeiouy]es|[^laeiouy]ed|[^laeiouy]e)$/,"").replace(/^y/,""); const m=w.match(/[aeiouy]{1,2}/g); return Math.max(1, m?m.length:1); };
+const MARKERS = ["however","although","though","actually","basically","for example","for instance","such as","in addition","moreover","what's more","on the other hand","whereas","as a result","therefore","that's why","firstly","secondly","first of all","finally","in my opinion","personally","to be honest","as far as i'm concerned","in contrast","overall","in general","generally speaking","apart from","besides","otherwise","instead","especially","in fact","of course","anyway","i'd say","i suppose","i guess","on top of that","not only","as well as","in other words","let's say","mainly","in particular","the thing is","having said that","that said","even so","nevertheless","eventually","afterwards","meanwhile","at the same time","in the end","to sum up","all in all","compared to","compared with","similarly","unlike","because of","due to","so that","as long as","unless","whether"];
+const OVERUSE_WATCH = ["so","then","because","also","but","actually","basically"];
+const REPAIR_CUES = ["i mean","sorry","what i mean is","let me rephrase","or rather","no wait","i should say"];
+const IDIOMS = ["come up with","came up with","look forward to","looking forward to","get on with","get along with","put up with","run out of","ran out of","figure out","figured out","give up","gave up","take up","took up","turn out","turned out","end up","ended up","catch up","keep up with","look after","look up to","bring up","brought up","set up","carry on","go through","went through","get over","work out","worked out","stand out","cut down on","come across","came across","make sense","makes sense","make ends meet","piece of cake","once in a blue moon","at the end of the day","cup of tea","hit the books","under the weather","break the ice","keep in touch","in the long run","from time to time","every now and then","more often than not","by and large","on the go","on the spot","off the top of my head","in a nutshell","a big fan of","can't stand","get the hang of","take for granted","taken for granted","kill time","make a difference","pay off","paid off","best of both worlds","blessing in disguise","learn the ropes","comfort zone","burn out","burnt out","wind down","unwind","chill out","hang out","hung out","looking back","stick to","stick with","rely on","a great deal","to some extent","it depends on","on the whole","when it comes to","as a matter of fact","for the time being","in the meantime","sooner or later","the other day","all of a sudden","out of the blue","keen on","fond of","be into","really into","get used to","got used to","used to","take part in","took part in","make up my mind","made up my mind","pick up","picked up","drop by","dropped by","show up","showed up","look into","work on","deal with","dealt with","come to terms with","cost an arm and a leg","over the moon","on cloud nine","miss the boat","hit it off","a breath of fresh air"];
+
+function countPhrases(joined, list){ let c=0; const found=new Set(); for(const m of list){ const k=(joined.match(new RegExp("\\s"+m.replace(/'/g,"'").replace(/ /g,"\\s")+"\\s","g"))||[]).length; if(k){ c+=k; found.add(m); } } return {count:c, found:[...found]}; }
+function discourseStats(text){
+  const w = tokenize(text); const n = w.length; if(n<15) return null;
+  const joined = " "+w.join(" ")+" ";
+  const mk = countPhrases(joined, MARKERS);
+  let top=null, topRate=0; for(const m of OVERUSE_WATCH){ const k=(joined.match(new RegExp("\\s"+m+"\\s","g"))||[]).length; const r=k/n*100; if(r>topRate){topRate=r; top=m;} }
+  const rep = countPhrases(joined, REPAIR_CUES);
+  const T = transcriptStats(text);
+  const idi = countPhrases(joined, IDIOMS);
+  return {n, markers:mk.found, connScore: mk.found.length/Math.sqrt(Math.max(1,n/100)), overuse: topRate>3.5 ? {word:top, rate:topRate} : null,
+    repairsPer100: (T.reps + rep.count)/n*100, repairs: T.reps+rep.count, idioms: idi.found, idiomsPer100: idi.count/n*100};
+}
+// "fully fit": average of the indicators, but no more than one band above the weakest one; then caps
+function fit(inds, caps){
+  const b = inds.map(i=>i.band).filter(v=>v!=null && isFinite(v));
+  if(!b.length) return {band:null, raw:null, inds, caps:[]};
+  const mean = b.reduce((x,y)=>x+y,0)/b.length, lo = Math.min(...b);
+  let raw = Math.min(mean, lo+1);
+  const hit = (caps||[]).filter(c=>c && raw > c.max);
+  for(const c of hit) raw = Math.min(raw, c.max);
+  return {band: Math.round(clampBand(raw)), raw, inds, caps:hit};
+}
+function computeScores(parts){
+  // parts: [{part, analysis, transcript, confs, qCount}]
+  const A = mergeAnalyses(parts.map(p=>p.analysis));
+  const allText = parts.map(p=>p.transcript||"").join(" ").trim();
+  const T = transcriptStats(allText);
+  const hasText = T.words >= 15;
+  const lg = hasText ? lexGram(allText) : null;
+  const ds = hasText ? discourseStats(allText) : null;
+  const out = {A, T, hasText, lg, ds};
+  if(!A) return out;
+  const words = hasText ? T.words : A.syl / SYL_PER_WORD;
+  const mins = Math.max(A.span,1)/60;
+  Object.assign(out, {wordsSource: hasText?"文字稿":"音節估算", words, wpm: words/mins,
+    longPausesPerMin: A.pauses.filter(p=>p>=1).length/mins, pausesPerMin: A.pauses.length/mins,
+    mlr: words/Math.max(1,A.runs), pausePer100: A.pauses.reduce((a,b)=>a+b,0)/Math.max(1,words)*100, phonRatio: A.phon/Math.max(1,A.span)});
+  const p2 = parts.find(p=>p.part===2);
+  out.p2Speak = p2?.analysis && !p2.analysis.empty ? p2.analysis.span : null;
+  const dev = k => { const p=parts.find(x=>x.part===k); if(!p || !p.transcript) return null; const n=tokenize(p.transcript).length; return n/Math.max(1,p.qCount||1); };
+  out.dev1 = dev(1); out.dev3 = dev(3);
+
+  // ---- Fluency and coherence: speech rate, continuity (pauses, repetition, self-correction), linking, topic development
+  const fcAudio = [
+    {label:"語速", sub:"字數來源："+out.wordsSource, value:Math.round(out.wpm)+" 字/分", band:interp(out.wpm,RATE_ANCHORS), src:"audio"},
+    {label:"長停頓（≥ 1 秒）", sub:"官方：找字時的停頓會打斷流暢", value:fmt1(out.longPausesPerMin)+" 次/分", band:interp(out.longPausesPerMin,LONGPAUSE_ANCHORS), src:"audio"},
+    {label:"連續說話長度", sub:"兩次停頓之間講了幾個字", value:fmt1(out.mlr)+" 字", band:interp(out.mlr,MLR_ANCHORS), src:"audio"},
+  ];
+  const fcText = ds ? [
+    {label:"重複與自我修正", sub:"官方：重複、自我修正、重新開頭", value:fmt1(ds.repairsPer100)+" 次/100字", band:interp(ds.repairsPer100,REPAIR_ANCHORS), src:"text"},
+    {label:"連接詞的多樣性", sub:ds.markers.length?ds.markers.slice(0,8).join("、"):"幾乎只用 and / so / because", value:ds.markers.length+" 種", band:interp(ds.connScore,CONN_ANCHORS), src:"text"},
+  ] : [];
+  const devB = [out.dev1!=null?interp(out.dev1,DEV1_ANCHORS):null, out.dev3!=null?interp(out.dev3,DEV3_ANCHORS):null].filter(v=>v!=null);
+  if(devB.length) fcText.push({label:"答案展開程度", sub:"官方：能否把話題展開", value:[out.dev1!=null?`Part 1 每題 ${Math.round(out.dev1)} 字`:"", out.dev3!=null?`Part 3 每題 ${Math.round(out.dev3)} 字`:""].filter(Boolean).join("、"), band:devB.reduce((a,b)=>a+b,0)/devB.length, src:"text"});
+  // where the pauses fall (needs Whisper word timings)
+  const wt = parts.flatMap(p=>(p.takes||[]).filter(t=>t.whisper?.words?.length));
+  const wWords = wt.reduce((a,t)=>a+t.whisper.words.length,0);
+  if(wWords>=40){
+    const pl = wt.map(t=>pauseLocations(t.whisper.words)); const mid = pl.reduce((a,x)=>a+x.mid,0), bnd = pl.reduce((a,x)=>a+x.boundary,0);
+    out.midPer100 = mid/wWords*100; out.midShare = (mid+bnd) ? mid/(mid+bnd) : 0;
+    fcText.push({label:"句子中間的停頓", sub:`官方 7 分：找字的停頓「常在句子中間」；8 分：停頓大多是在想內容。共 ${mid+bnd} 次停頓，${mid} 次在句子中間`, value:fmt1(out.midPer100)+" 次/100字", band:interp(out.midPer100,[[1,8],[3,7],[6,6],[10,5],[15,4]]), src:"audio"});
+  }
+  const fcCaps = [];
+  if(out.p2Speak!=null){ if(out.p2Speak<45) fcCaps.push({max:5, reason:`Part 2 只講了 ${Math.round(out.p2Speak)} 秒（題目要求 1–2 分鐘）；官方 6 分要求「願意說出長段回答」`}); else if(out.p2Speak<80) fcCaps.push({max:6, reason:`Part 2 只講了 ${Math.round(out.p2Speak)} 秒；官方 7 分要求「能輕鬆說出長段回答」`}); }
+  if(ds?.overuse) fcCaps.push({max:5, reason:`「${ds.overuse.word}」用得太頻繁（每 100 字 ${fmt1(ds.overuse.rate)} 次）；官方 5 分的特徵是「過度使用某些連接詞」，6 分要求「使用多種連接詞」`});
+  out.fcAudio = fit(fcAudio, fcCaps);
+  out.fc = fit([...fcAudio, ...fcText], fcCaps);
+
+  // ---- Lexical resource: range, less common & idiomatic items, (paraphrase/precision needs a human or Claude)
+  if(lg){
+    const lrInds = [
+      {label:"用字多樣度", sub:"MATTR：每 50 個字裡不重複的比例", value:lg.mattr!=null?lg.mattr.toFixed(2):"—", band:lg.mattr!=null?interp(lg.mattr,MATTR_ANCHORS):null, src:"text"},
+      {label:"較少見的字", sub:"不在最常用 2,500 字裡的比例", value:fmt1(lg.rarePct)+"%", band:interp(lg.rarePct,RARE_ANCHORS), src:"text"},
+      {label:"慣用語與片語動詞", sub:ds?.idioms.length?ds.idioms.slice(0,6).join("、"):"沒有偵測到", value:(ds?.idioms.length||0)+" 個", band:ds?interp(ds.idiomsPer100,IDIOM_ANCHORS):null, src:"text"},
+    ];
+    const caps = [{max:8, reason:"本機判斷不了用字是否精準、搭配是否自然，最高估到 8"}];
+    if(lg.words<80) caps.push({max:6, reason:`文字稿只有 ${lg.words} 字，樣本太少`}); else if(lg.words<150) caps.push({max:7, reason:`文字稿只有 ${lg.words} 字，樣本偏少`});
+    if(lg.words>=150 && !(ds?.idioms.length)) caps.push({max:6, reason:"官方 7 分要求「具備使用一些較少見和慣用詞彙的能力」，這次沒有偵測到慣用語"});
+    out.lr = fit(lrInds, caps);
+    // ---- Grammatical range and accuracy: complexity, range of structures, error density
+    const graInds = [
+      {label:"複句（子句）使用", sub:"官方：子句的使用、句子長度與複雜度", value:fmt1(lg.subPer100)+" 次/100字", band:interp(lg.subPer100,SUB_ANCHORS), src:"text"},
+      {label:"句型種類", sub:"官方：動詞片語的複雜度（進行式、完成式、情態、被動）與句型範圍｜"+Object.entries(lg.feats).filter(e=>e[1]).map(e=>e[0]).join("、")||"—", value:lg.variety+" / 9 種", band:interp(lg.variety,VARIETY_ANCHORS), src:"text"},
+      {label:"錯誤密度", sub:"官方：一定長度內的錯誤數量；本機只抓十多種常見錯誤", value:fmt1(lg.errPer100)+" 個/100字", band:interp(lg.errPer100,ERR_ANCHORS), src:"text"},
+    ];
+    const gcaps = [{max:7, reason:"官方 8 分要求「大多數句子沒有錯誤」，7 分是「常有沒有錯誤的句子」；本機沒辦法逐句檢查，最高估到 7"}];
+    if(lg.words<80) gcaps.push({max:6, reason:`文字稿只有 ${lg.words} 字，樣本太少`});
+    if(lg.subPer100<1.5) gcaps.push({max:4, reason:"幾乎沒有用到子句；官方 4 分的特徵是「很少用到從屬子句，句型重複」"});
+    out.gra = fit(graInds, gcaps);
+  }
+
+  // ---- Pronunciation. Calibrated on speechocean762 (250 Mandarin-L1 learners, 5 expert raters, CC BY 4.0):
+  // for the 128 adults, expert sentence accuracy is predicted by articulation rate (syllables per second of
+  // phonation, which ignores planning pauses) and by extra syllables (detected nuclei ÷ syllables the transcript
+  // needs: epenthetic vowels, restarts). 5-fold cross-validated r = 0.84, mean error 0.73 on the 0–10 scale.
+  // Pitch range was tested too and did not predict the expert scores (r ≈ 0.07), so it is shown for reference only.
+  const confs = parts.flatMap(p=>p.confs||[]);
+  out.conf = confs.length>=3 ? confs.reduce((a,b)=>a+b,0)/confs.length : null;
+  out.artRate = A.phon>0 ? A.syl/A.phon : null;
+  const tp = parts.filter(p=>p.transcript && p.analysis && !p.analysis.empty);
+  const expSyl = tp.reduce((s,p)=>s+tokenize(p.transcript).reduce((a,w)=>a+sylCount(w),0),0), detSyl = tp.reduce((s,p)=>s+p.analysis.syl,0);
+  out.sylRatio = expSyl>=40 ? detSyl/expSyl : null;
+  out.soAcc = out.artRate==null ? null : Math.max(0, Math.min(10, out.sylRatio!=null ? SO_MODEL.a + SO_MODEL.art*out.artRate + SO_MODEL.ratio*out.sylRatio : SO_MODEL1.a + SO_MODEL1.art*out.artRate));
+  out.flatShare = A.longRuns>=3 ? A.flatRuns/A.longRuns : null;
+  const prInds = [
+    {label:"發音清晰度", sub:out.sylRatio!=null?"依 speechocean762 專家評分校準：發音速度＋多出來的音節":"依 speechocean762 校準；沒有文字稿，只用發音速度估計", value:out.soAcc!=null?out.soAcc.toFixed(1)+" / 10":"—", band:out.soAcc!=null?interp(out.soAcc,SO_TO_BAND):null, src:"audio"},
+    {label:"多出來的音節", sub:"偵測到的音節 ÷ 文字稿應有的音節；字尾加母音、重講都會讓它變高（參考）", value:out.sylRatio!=null?out.sylRatio.toFixed(2)+" 倍":"—", band:null, src:"audio"},
+    {label:"發音速度", sub:"扣掉停頓後每秒幾個音節（參考）", value:out.artRate!=null?out.artRate.toFixed(1)+" 音節/秒":"—", band:null, src:"audio"},
+    {label:"斷句（意群）", sub:"官方：能否把話切成有意義的段落", value:fmt1(out.mlr)+" 字/段", band:interp(out.mlr,[[2,4],[3,5],[4.5,6],[6,7],[8,8]]), src:"audio"},
+  ];
+  if(out.conf!=null) prInds.push({label:"機器辨識信心", sub:"對應官方「聽者要多費力」", value:Math.round(out.conf*100)+"%", band:interp(out.conf,CONF_ANCHORS), src:"audio"});
+  if(out.wpm>175) prInds.push({label:"語速對節奏的影響", sub:"官方 6 分：節奏可能因語速太快而受影響", value:Math.round(out.wpm)+" 字/分", band:interp(out.wpm,[[175,8],[195,7],[215,6]]), src:"audio"});
+  prInds.push({label:"語調起伏", sub:"音高變化；在專家評分資料裡跟發音分數無關，只供參考", value:A.pitchSD!=null?A.pitchSD.toFixed(1)+" 半音":"—", band:null, src:"audio"});
+  prInds.push({label:"語調偏平的句子", sub:"官方 6 分：語調和重音的效果「無法持續」（參考）", value:out.flatShare!=null?Math.round(out.flatShare*100)+"%":"—", band:null, src:"audio"});
+  const pcaps = [{max:8, reason:"本機聽不出個別音和母語口音的影響，最高估到 8"}];
+  if(out.sylRatio==null) pcaps.push({max:6, reason:"沒有文字稿，只能用發音速度估計（準確度較低），最高估到 6"});
+  out.pr = fit(prInds, pcaps);
+  return out;
+}
+function stateOf(v, goodAt, warnAt, higherIsBetter=true){
+  if(v==null||!isFinite(v)) return ["—",""];
+  if(higherIsBetter) return v>=goodAt?["良好","good"]:v>=warnAt?["普通","warn"]:["需加強","bad"];
+  return v<=goodAt?["良好","good"]:v<=warnAt?["普通","warn"]:["需加強","bad"];
+}
+function bandState(b){ return b==null||!isFinite(b) ? ["—",""] : b>=7 ? ["強項","good"] : b>=5.5 ? ["普通","warn"] : ["需加強","bad"]; }
+
+/* ===================== App state ===================== */
+const state = { view:"home", test:null, steps:[], i:0, takes:{}, uploads:{1:null,2:null,3:null}, uploadText:{1:"",2:"",3:""}, result:null, ai:null, aiErr:null, timer:null };
+
+function buildTest(kind){
+  const start = pick(P1_START,1)[0]; const tops = pick(P1_TOPICS,2);
+  const card = pick(CARDS,1)[0];
+  const steps=[];
+  if(kind==="full"||kind==="p1"){
+    steps.push({part:1, say:"Good morning. This is the speaking test. In this first part, I'd like to ask you some questions about yourself. Let's talk about "+start.topic.toLowerCase()+". "+start.qs[0], q:start.qs[0], topic:start.topic});
+    start.qs.slice(1,3).forEach(q=>steps.push({part:1,q,say:q,topic:start.topic}));
+    tops.forEach(t=>{ t.qs.slice(0,3).forEach((q,k)=>steps.push({part:1,q,say:(k===0?"Now let's talk about "+t.topic.toLowerCase()+". ":"")+q,topic:t.topic})); });
+  }
+  if(kind==="full"||kind==="p2"||kind==="p23"){
+    steps.push({part:2, type:"prep", card, say:"Now I'm going to give you a topic, and I'd like you to talk about it for one to two minutes. Before you talk, you'll have one minute to think about what you're going to say. You can make some notes if you wish. Here is your topic. "+card.title});
+    steps.push({part:2, type:"talk", card, say:"All right. Remember you have one to two minutes for this. Don't worry if I stop you. I'll tell you when the time is up. Can you start speaking now, please?"});
+  }
+  if(kind==="full"||kind==="p3"||kind==="p23"){
+    card.p3.slice(0,5).forEach((q,k)=>steps.push({part:3,q,say:(k===0?"We've been talking about "+card.p3theme+", and I'd like to discuss with you one or two more general questions related to this. ":"")+q, topic:card.p3theme}));
+  }
+  return {kind, card, steps};
+}
+
+/* ===================== Views ===================== */
+function render(html){ $("#view").innerHTML = html; window.scrollTo({top:0}); }
+
+function renderHome(){
+  state.view="home";
+  const hist = store.get("ielts.history",[]);
+  const vs = voices();
+  render(`
+  ${env.live ? `<div class="notice info">麥克風已啟用。每題作答都會即時錄音，結束後${whisper.usable()?"用 Whisper 轉成文字稿再分析":env.recog?"直接分析，文字稿由瀏覽器的語音辨識產生":"直接分析（這個瀏覽器不支援語音轉文字，詞彙與文法會改用音節估算）"}。</div></div>`
+    : `<div class="notice"><b>這個頁面沒辦法直接使用麥克風。</b>可以照常考完全程，同時用手機的錄音 App（例如 iPhone「語音備忘錄」、Android「錄音機」）錄下自己的回答，考完再把三段錄音上傳分析。想要直接用麥克風即時錄音，請用手機或電腦的瀏覽器開啟完整版：<a href="${HOSTED_URL}" target="_blank" rel="noopener">${HOSTED_URL.replace("https://","")}</a></div>`}
+  <section class="choice-grid">
+    <button class="choice main" data-start="full"><b>完整模擬考</b><span>Part 1 → 2 → 3，約 11–14 分鐘</span></button>
+    <button class="choice" data-start="p1"><b>只練 Part 1</b><span>3 個主題、9 題日常問答</span></button>
+    <button class="choice" data-start="p2"><b>只練 Part 2</b><span>題卡，準備 1 分鐘、講 2 分鐘</span></button>
+    <button class="choice" data-start="p23"><b>Part 2 + 3</b><span>題卡加延伸討論</span></button>
+  </section>
+  <section class="card">
+    <h2>考官設定</h2>
+    <div class="row">
+      <label class="row" style="gap:8px"><input type="checkbox" id="ttsOn" ${settings.tts?"checked":""} ${env.tts?"":"disabled"}> 考官唸出題目</label>
+      ${vs.length?`<select id="voiceSel" style="width:auto;max-width:100%">${vs.map(v=>`<option ${v.name===settings.voice?"selected":""}>${esc(v.name)}</option>`).join("")}</select>`:""}
+      <button class="ghost" id="ttsTest" ${env.tts?"":"disabled"}>試聽</button>
+    </div>
+    ${inArtifact?"":`<label class="row" style="gap:8px"><input type="checkbox" id="whisperOn" ${settings.whisper?"checked":""}> 用 Whisper 產生文字稿（在你的瀏覽器裡執行，錄音不會上傳；第一次要下載約 80 MB）</label>`}
+    ${!env.live?`<p class="small muted">用手機錄音時，建議把考官聲音關掉，或戴耳機，避免考官的聲音被錄進去，影響停頓分析。</p>`:""}
+  </section>
+  ${inArtifact?"":`<section class="card">
+    <h2>Claude 評分（選填）</h2>
+    <p class="small muted">填入你自己的 Anthropic API 金鑰，詞彙、文法和連貫性就會交給 Claude 依官方規則評分，並附修改建議。沒填的話改用本機估算。金鑰只存在這個瀏覽器，只會傳給 api.anthropic.com。完整考一次大約花 0.05 美元。</p>
+    <div class="row"><input type="password" id="apiKeyIn" autocomplete="off" placeholder="sk-ant-..." value="${esc(apiKey)}" style="flex:1;min-width:200px">
+      <button id="apiKeySave">${apiKey?"更新":"儲存"}</button>${apiKey?`<button class="ghost" id="apiKeyDel">清除</button>`:""}</div>
+    <span class="small" id="apiKeyMsg">${apiKey?`<span class="ok">已設定，考完會自動交給 Claude 評分。</span>`:`<a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">到 Anthropic Console 申請金鑰</a>`}</span>
+  </section>`}
+  <section class="card">
+    <h2>評分方式</h2>
+    <div class="tbl"><table class="metrics">
+      <tr><th>評分項目</th><th>依據</th></tr>
+      <tr><td>流暢與連貫</td><td>錄音：語速、停頓次數與長度、連續說話長度 <span class="tag audio">音訊</span>${aiAvailable()?` ＋ 連貫性 <span class="tag ai">Claude</span>`:""}</td></tr>
+      <tr><td>發音</td><td>錄音＋文字稿：發音速度、多出來的音節，以專家評分資料校準 <span class="tag audio">音訊</span></td></tr>
+      <tr><td>詞彙、文法</td><td>文字稿：用字多樣度、較少見的字、複句、句型種類、常見錯誤 <span class="tag rough">本機估算</span>${env.sample?` → 再交給 Claude 依官方分數描述評分 <span class="tag ai">Claude</span>`:`，也可以複製評分指令交給 Claude`}</td></tr>
+      <tr><td>總分</td><td>每項給整數分，四項平均後依官方規則取到 0.5</td></tr>
+    </table></div>
+    <details><summary>方法與資料來源</summary>${methodHtml()}</details>
+  </section>
+  ${hist.length?`<section class="card"><h2>練習紀錄</h2><div class="tbl"><table class="hist">
+    <tr><td class="muted small">日期</td><td class="muted small">範圍</td><td class="muted small">總分</td><td class="muted small">流暢</td><td class="muted small">詞彙</td><td class="muted small">文法</td><td class="muted small">發音</td></tr>
+    ${hist.slice(-12).reverse().map(h=>`<tr><td>${esc(h.date)}</td><td>${esc(h.kind)}</td><td><b>${h.overall??"—"}</b></td><td>${h.flu??"—"}</td><td>${h.lr??"—"}</td><td>${h.gra??"—"}</td><td>${h.pron??"—"}</td></tr>`).join("")}
+  </table></div></section>`:""}
+  `);
+  document.querySelectorAll("[data-start]").forEach(b=>b.onclick=()=>startTest(b.dataset.start));
+  const t=$("#ttsOn"); if(t) t.onchange=()=>{ settings.tts=t.checked; saveSettings(); };
+  const wo=$("#whisperOn"); if(wo) wo.onchange=()=>{ settings.whisper=wo.checked; saveSettings(); };
+  const vsel=$("#voiceSel"); if(vsel) vsel.onchange=()=>{ settings.voice=vsel.value; saveSettings(); };
+  const ks=$("#apiKeySave"); if(ks) ks.onclick=()=>{ const v=$("#apiKeyIn").value.trim(); if(v && !/^sk-ant-/.test(v)){ $("#apiKeyMsg").innerHTML=`<span class="err">金鑰應該以 sk-ant- 開頭，請再確認一次。</span>`; return; } apiKey=v; store.set("ielts.apiKey", apiKey); renderHome(); };
+  const kd=$("#apiKeyDel"); if(kd) kd.onclick=()=>{ apiKey=""; store.set("ielts.apiKey",""); renderHome(); };
+  const tt=$("#ttsTest"); if(tt) tt.onclick=()=>{ const o=settings.tts; settings.tts=true; speak("Good morning. Can you tell me your full name, please?").then(()=>settings.tts=o); };
+}
+function methodHtml(){
+  return `<div class="stack small" style="margin-top:10px">
+  <p><b>官方評分規則（IELTS 官網、British Council、IDP）：</b></p>
+  <ul class="fb-list">
+    <li>四項評分同等權重，各佔 25%，口說成績是四項的平均。</li>
+    <li>平均的小數 .25 進位到 .5，.75 進位到下一個整數，其他取最接近的 0.5。官網是用總成績來說明這條規則，口說單項是否完全相同，官網沒有寫明。</li>
+    <li>官方評分描述只寫了 1–9 的整數分數段，所以這裡每一項都給整數分數。考官能不能給單項半分，官網沒有明說。</li>
+    <li>官方評分描述的附註：考生要「完全符合」某個分數段的正面特徵才能拿到那一分，而且依考生在所有 Part 的平均表現評分。所以這裡把三個 Part 合起來算，每一項的分數最多只比最弱的指標高 1 分。</li>
+    <li>流暢與連貫看語速、連續性（停頓、重複、自我修正、重新開頭）、邏輯順序、連接詞，以及話題展開。</li>
+    <li>詞彙看用字範圍、精準度、較少見和慣用的詞彙，以及換句話說的能力。7 分要求用到一些較少見和慣用的詞彙。</li>
+    <li>文法看句子長度、子句使用、動詞片語的複雜度（進行式、完成式、情態、被動）、名詞片語的修飾、句型範圍、一定長度內的錯誤數量，以及錯誤對溝通的影響。</li>
+    <li>發音看能否把話切成有意義的段落、節奏與連音、用重音和語調表達意思、單字與音素的發音和聽者要多費力，以及口音對別人聽不聽得懂的影響。</li>
+    <li>外表、肢體語言和想法有沒有創意都不評分。</li>
+    <li>考試約 11–14 分鐘：Part 1 4–5 分鐘，Part 2 準備 1 分鐘、講 1–2 分鐘，Part 3 4–5 分鐘。</li>
+  </ul>
+  <p><b>語速對照：</b>LINDSEI 學習者語料研究測得 B2 約 118、C1 約 142 字/分鐘，英語母語者約 174。再依常用的 CEFR 對照（B1≈4–5 分、B2≈5.5–6.5、C1≈7–8）換算成分數。B1 以「每分鐘 100 字以下」為參考。</p>
+  <p><b>停頓：</b>超過 0.25 秒的無聲片段算一次停頓，這是第二語言流暢度研究常用的門檻。超過 3 秒的空白視為換題，不計入。IELTS 委託的研究（Seedhouse 等，2014）發現「每 100 字的停頓時間」在 5 分和 8 分考生之間有顯著差異。綜合研究則指出語速和連續說話長度跟程度的相關最高。</p>
+  <p><b>音節：</b>沒有文字稿時，用音量峰值偵測音節，做法參考 de Jong &amp; Wempe（2009），再以每字約 1.45 個音節換算字數。</p>
+  <p><b>流暢與連貫（文字稿部分）：</b>每 100 字的重複與自我修正次數、用了幾種連接詞（and、so、because 以外），以及 Part 1、Part 3 每題平均講幾個字。某個連接詞用得太頻繁時，最高 5 分，因為官方 5 分的特徵是「過度使用某些連接詞」。Part 2 講不到 45 秒最高 5 分，不到 80 秒最高 6 分（7 分要求「能輕鬆說出長段回答」）。</p>
+  <p><b>詞彙：</b>用字多樣度（MATTR，每 50 字的不重複比例）、不在最常用 2,500 字裡的比例（字頻表來自 wordfreq），以及約 150 個慣用語和片語動詞。文字稿超過 150 字卻沒有任何慣用語時，最高 6 分，因為官方 7 分要求「用到一些較少見和慣用的詞彙」。本機判斷不了用字是否精準，最高 8 分。</p>
+  <p><b>文法：</b>每 100 字的子句數、9 種句型（時態、進行式、被動、條件句、關係子句等）用到幾種，以及十多種常見錯誤的密度。幾乎沒有子句時最高 4 分。官方 8 分要求「大多數句子沒有錯誤」，本機沒辦法逐句檢查，最高 7 分。${env.sample?"有 Claude 時，詞彙和文法改用 Claude 依官方規則給的整數分數。":""}</p>
+  <p><b>發音（用真實資料校準）：</b>用 speechocean762 公開資料集（CC BY 4.0）校準：250 位母語為中文的英語學習者，每句都有 5 位專家評分。在 128 位成人身上，專家的發音分數可以用兩個不受停頓影響的指標預測：<b>發音速度</b>（扣掉停頓後每秒幾個音節）和<b>多出來的音節</b>（偵測到的音節 ÷ 文字稿應有的音節，例如字尾多加母音）。交叉驗證的相關係數是 0.84，平均誤差 0.73 分（滿分 10）。再依兩邊的評分描述，把 speechocean762 的 0–10 分換算成 IELTS 分數：9–10「非常好」約 8 分，7–8「好、少數錯誤」約 6–7 分，5–6「聽得懂但錯誤多」約 5 分，3–4「差」約 4 分。<b>音高變化經過資料檢驗跟專家分數無關</b>（相關係數約 0.07），所以只列出供參考。限制：這份資料是朗讀句子，不是自由口說，而且本機還是聽不出個別音發錯，所以最高 8 分；沒有文字稿時只能用發音速度估計，最高 6 分。</p>
+  <p><b>限制：</b>研究也指出，沒有單一指標能分辨相鄰兩個分數段。這裡的分數是方向性的估計，適合用來追蹤自己的進步，不適合當成考試預測。</p>
+  <ol class="src">
+    <li><a href="https://ielts.org/cdn/ielts-guides/ielts-speaking-band-descriptors.pdf" target="_blank" rel="noopener">IELTS Speaking Band Descriptors（IELTS 官網，現行版）</a></li>
+    <li><a href="https://ielts.org/cdn/ielts-guides/ielts-speaking-key-assessment-criteria.pdf" target="_blank" rel="noopener">IELTS Speaking key assessment criteria（IELTS 官網）</a></li>
+    <li><a href="https://takeielts.britishcouncil.org/results/how-is-ielts-assessed" target="_blank" rel="noopener">How IELTS is assessed（British Council）</a></li>
+    <li><a href="https://takeielts.britishcouncil.org/what-is-ielts/how-it-works/test-format/speaking" target="_blank" rel="noopener">IELTS Speaking test format（British Council）</a></li>
+    <li><a href="https://ielts.idp.com/results/scores/speaking" target="_blank" rel="noopener">How are your IELTS Speaking scores calculated?（IDP）</a></li>
+    <li><a href="https://www.ielts.org/for-organisations/ielts-scoring-in-detail" target="_blank" rel="noopener">IELTS scoring in detail（IELTS 官網）</a></li>
+    <li><a href="https://www.openslr.org/101/" target="_blank" rel="noopener">speechocean762: An Open-Source Non-Native English Speech Corpus for Pronunciation Assessment（OpenSLR 101）</a></li>
+    <li><a href="https://www.ielts.org/researchers/our-research/research-reports/the-assessment-of-pronunciation-and-the-new-ielts-pronunciation-scale" target="_blank" rel="noopener">The assessment of pronunciation and the new IELTS Pronunciation scale</a></li>
+    <li><a href="https://www.birmingham.ac.uk/Documents/college-artslaw/corpus/conference-archives/2017/general/paper229.pdf" target="_blank" rel="noopener">Speech rates and unfilled pauses in native and learner speech (LINDSEI)</a></li>
+    <li><a href="https://ielts.org/researchers/our-research/research-reports/the-relationship-between-speaking-features-and-band-descriptors-a-mixed-methods-study" target="_blank" rel="noopener">Seedhouse et al. (2014), The relationship between speaking features and band descriptors</a></li>
+    <li><a href="https://www.researchgate.net/publication/290440831_Choosing_a_threshold_for_silent_pauses_to_measure_second_language_fluency" target="_blank" rel="noopener">Choosing a threshold for silent pauses to measure second language fluency</a></li>
+    <li><a href="https://www.researchgate.net/publication/321954622_Lexical_Sophistication_as_a_Multidimensional_Phenomenon_Relations_to_Second_Language_Lexical_Proficiency_Development_and_Writing_Quality" target="_blank" rel="noopener">Lexical sophistication as a multidimensional phenomenon（較少見字與程度）</a></li>
+    <li><a href="https://www.tandfonline.com/doi/full/10.1080/2331186X.2020.1770936" target="_blank" rel="noopener">An examination of IELTS candidates' performances at different band scores（各分數段的文法錯誤與複雜度）</a></li>
+    <li><a href="https://arxiv.org/html/2608.26137" target="_blank" rel="noopener">Interpretable automated L2 speaking assessment（語速、連續說話長度與程度的相關）</a></li>
+  </ol></div>`;
+}
+
+/* ---------- exam runner ---------- */
+async function startTest(kind){
+  speechSynthesis?.cancel?.();
+  state.test = buildTest(kind); state.steps=state.test.steps; state.i=0; state.takes={}; state.uploads={1:null,2:null,3:null}; state.uploadText={1:"",2:"",3:""}; state.result=null; state.ai=null; state.aiErr=null;
+  state.view="exam";
+  if(!env.live){ renderUploadIntro(); return; }
+  runStep();
+}
+function renderUploadIntro(){
+  const parts=[...new Set(state.steps.map(s=>s.part))];
+  render(`<section class="card">
+    <h2>開始前：準備手機錄音</h2>
+    <ol class="fb-list">
+      <li>打開手機的錄音 App。</li>
+      <li>${parts.length>1?"每一個 Part 分開錄成一個檔案：":"開始作答時按下錄音，"}考官問完題目再開始講，講完按「下一題」。</li>
+      <li>考完會請你上傳 ${parts.map(p=>"Part "+p).join("、")} 的錄音。如果錄音 App 有自動文字稿，也可以一起貼上，詞彙和文法的分析會更準。</li>
+    </ol>
+    <div class="row"><button class="primary" id="go">我準備好了，開始</button><button class="ghost" id="back">返回</button></div>
+  </section>`);
+  $("#go").onclick=runStep; $("#back").onclick=renderHome;
+}
+function progressHtml(){
+  return `<div class="progress" aria-hidden="true">${state.steps.map((s,k)=>`<div class="${k<state.i?"done":k===state.i?"now":""}"></div>`).join("")}</div>`;
+}
+function stopTimer(){ if(state.timer){ clearInterval(state.timer); state.timer=null; } }
+function countdown(sec, onTick, onDone){
+  stopTimer(); const end=performance.now()+sec*1000;
+  const tick=()=>{ const left=(end-performance.now())/1000; onTick(left); if(left<=0){ stopTimer(); onDone(); } };
+  tick(); state.timer=setInterval(tick,200);
+}
+function countup(onTick){ stopTimer(); const t0=performance.now(); const tick=()=>onTick((performance.now()-t0)/1000); tick(); state.timer=setInterval(tick,250); }
+
+let currentTake=null;
+async function runStep(){
+  stopTimer();
+  const s = state.steps[state.i];
+  if(!s){ finishExam(); return; }
+  const partLabel = {1:"Part 1 · 日常問答",2:"Part 2 · 個人陳述",3:"Part 3 · 延伸討論"}[s.part];
+  if(s.part===2 && s.type==="prep"){
+    render(`${progressHtml()}<section class="examiner"><span class="eyebrow">${partLabel}</span>
+      <div class="cue"><div class="q">${esc(s.card.title)}</div><div class="small muted" style="margin-top:6px">You should say:</div><ul>${s.card.pts.map(p=>`<li>${esc(p)}</li>`).join("")}</ul></div></section>
+      <section class="card"><div class="clock-box"><div><div class="clock-label">準備時間</div><div class="clock" id="clk">1:00</div></div><button id="skip">我準備好了</button></div>
+      <label for="notes">筆記（只有你看得到）</label><textarea id="notes" placeholder="寫幾個關鍵字就好，例如：when / where / why / feeling"></textarea></section>`);
+    $("#skip").onclick=()=>{ stopTimer(); next(); };
+    await speak(s.say);
+    if(state.view!=="exam"||state.steps[state.i]!==s) return;
+    countdown(60, l=>{ const c=$("#clk"); if(c) c.textContent=fmtTime(l); }, ()=>next());
+    return;
+  }
+  const isTalk = s.part===2;
+  const target = isTalk ? 120 : s.part===1 ? 25 : 50;
+  render(`${progressHtml()}
+    <section class="examiner"><span class="eyebrow">${partLabel}${s.topic?" · "+esc(s.topic):""}</span>
+      ${isTalk?`<div class="cue"><div class="q">${esc(s.card.title)}</div><ul>${s.card.pts.map(p=>`<li>${esc(p)}</li>`).join("")}</ul></div>`:`<div class="q">${esc(s.q)}</div>`}
+      ${isTalk && state.steps[state.i-1]?.type==="prep" ? `<div class="small muted" id="notesShow"></div>`:""}
+    </section>
+    <section class="card">
+      <div class="clock-box"><div><div class="clock-label">${isTalk?"剩餘時間（講滿 2 分鐘最好）":"作答時間（建議 "+(s.part===1?"15–30":"40–60")+" 秒）"}</div><div class="clock" id="clk">${isTalk?"2:00":"0:00"}</div></div>
+        <div id="recState" class="small muted">${settings.tts&&env.tts?"考官說話中…":""}</div></div>
+      <div class="bar"><i id="barFill"></i></div>
+      ${env.live?`<div class="meter" aria-label="音量"><i id="lvl"></i></div><div class="live-text" id="liveText" aria-live="polite"></div>`:""}
+      <div class="row"><button class="primary" id="nextBtn" disabled>${state.i===state.steps.length-1?"結束考試":"下一題"}</button>
+        <button class="ghost" id="repeatBtn">再唸一次題目</button><button class="ghost" id="quitBtn">中止</button></div>
+    </section>`);
+  const notes = state.notes; if(isTalk && notes && $("#notesShow")) $("#notesShow").textContent="你的筆記："+notes;
+  $("#quitBtn").onclick=async()=>{ stopTimer(); speechSynthesis?.cancel?.(); if(currentTake){ await currentTake.stop(); currentTake=null; } renderHome(); };
+  $("#repeatBtn").onclick=()=>speak(s.q || s.say);
+  await speak(s.say);
+  if(state.view!=="exam"||state.steps[state.i]!==s) return;
+  $("#recState").innerHTML = env.live ? `<span class="rec-dot">錄音中</span>` : "請開始作答";
+  if(env.live){
+    currentTake = new LiveTake();
+    try{ await currentTake.start(t=>{ const el=$("#liveText"); if(el) el.textContent=t; }, l=>{ const el=$("#lvl"); if(el) el.style.width=(l*100)+"%"; }); }
+    catch(e){ currentTake=null; $("#recState").textContent="錄音啟動失敗："+e.message; }
+  }
+  $("#nextBtn").disabled=false;
+  $("#nextBtn").onclick=()=>next();
+  const bar=$("#barFill");
+  if(isTalk) countdown(120, l=>{ const c=$("#clk"); if(c) c.textContent=fmtTime(l); if(bar) bar.style.width=((120-l)/120*100)+"%"; }, ()=>{ speak("Thank you."); next(); });
+  else countup(t=>{ const c=$("#clk"); if(c) c.textContent=fmtTime(t); if(bar){ bar.style.width=Math.min(100,t/target*100)+"%"; } });
+}
+async function next(){
+  stopTimer(); speechSynthesis?.cancel?.();
+  const s = state.steps[state.i];
+  if(s?.type==="prep"){ state.notes = $("#notes")?.value || ""; }
+  if(currentTake){ const btn=$("#nextBtn"); if(btn){btn.disabled=true;btn.textContent="儲存中…";} const t=currentTake; currentTake=null; const r=await t.stop(); (state.takes[s.part] ||= []).push({...r, q:s.q||s.card?.title}); }
+  state.i++; runStep();
+}
+
+/* ---------- finish & results ---------- */
+async function finishExam(){
+  state.view="results";
+  if(env.live){ await analyzeAll(); }
+  else renderUploads();
+}
+function renderUploads(){
+  const parts=[...new Set(state.steps.map(s=>s.part))];
+  render(`<section class="card"><h2>上傳錄音</h2><p class="muted small">支援 m4a、mp3、wav、webm 等格式。${whisper.usable()?"文字稿不用填，Whisper 會自動產生；如果你自己貼了，會以你貼的為準。":"文字稿可以不填，但填了詞彙和文法的分析會比較準。"}</p>
+    ${parts.map(p=>`<div class="upload-slot"><h3>Part ${p}</h3>
+      <input type="file" accept="audio/*,.m4a,.mp3,.wav,.webm,.ogg,.aac" id="f${p}">
+      <span class="small" id="fs${p}">${state.uploads[p]?`<span class="ok">已選擇 ${esc(state.uploads[p].name)}</span>`:""}</span>
+      <label for="t${p}" class="small">文字稿（選填）</label><textarea id="t${p}" placeholder="把錄音 App 產生的英文文字稿貼在這裡">${esc(state.uploadText[p])}</textarea></div>`).join("")}
+    <div class="row"><button class="primary" id="anBtn">開始分析</button><button class="ghost" id="homeBtn">回首頁</button></div>
+    <div id="anMsg" class="small"></div></section>`);
+  parts.forEach(p=>{
+    $("#f"+p).onchange=e=>{ state.uploads[p]=e.target.files[0]||null; $("#fs"+p).innerHTML=state.uploads[p]?`<span class="ok">已選擇 ${esc(state.uploads[p].name)}</span>`:""; };
+    $("#t"+p).oninput=e=>{ state.uploadText[p]=e.target.value; };
+  });
+  $("#homeBtn").onclick=renderHome;
+  $("#anBtn").onclick=async()=>{
+    if(!parts.some(p=>state.uploads[p])){ $("#anMsg").innerHTML=`<span class="err">請至少上傳一段錄音。</span>`; return; }
+    state.takes={};
+    parts.forEach(p=>{ if(state.uploads[p]) state.takes[p]=[{blob:state.uploads[p], transcript:state.uploadText[p].trim(), userTranscript:state.uploadText[p].trim(), confs:[], q:null}]; });
+    await analyzeAll();
+  };
+}
+async function analyzeAll(){
+  const useWhisper = whisper.usable();
+  const total = Object.values(state.takes).reduce((a,t)=>a+t.length,0); let done=0, dl="";
+  const paint = () => render(`<section class="card"><h2>分析中…</h2><p class="muted">正在計算停頓、語速和發音${useWhisper?"，並用 Whisper 轉成文字稿":""}。</p>
+    ${useWhisper?`<div class="bar"><i style="width:${Math.round(done/Math.max(1,total)*100)}%"></i></div><p class="small muted">文字稿 ${done} / ${total}${dl?`　${dl}`:""}</p>`:""}</section>`);
+  paint();
+  whisper.onProgress = p => { if(p.status==="progress" && p.total>1e6){ dl=`下載模型 ${Math.round(p.loaded/1e6)} / ${Math.round(p.total/1e6)} MB（只有第一次）`; paint(); } else if(p.status==="ready"){ dl=""; paint(); } };
+  const parts=[]; const errors=[]; let whisperErr=null;
+  for(const p of Object.keys(state.takes).map(Number).sort()){
+    const takes = state.takes[p]; const an=[];
+    for(const t of takes){
+      try{
+        const buf=await decodeBlob(t.blob); an.push(analyzeBuffer(buf)); t.url=URL.createObjectURL(t.blob);
+        if(useWhisper && !whisperErr){
+          try{ const r = await whisper.transcribe(await to16kMono(buf)); t.whisper = {text:r.text.trim(), words:r.words};
+            if(t.whisper.text) { t.asrTranscript = t.transcript; t.transcript = t.userTranscript || t.whisper.text; } }
+          catch(e){ whisperErr = e; }
+          done++; paint();
+        }
+      }
+      catch(e){ errors.push(`Part ${p} 的錄音無法讀取，請改用 m4a、mp3 或 wav 格式。`); }
+    }
+    const qCount = env.live ? takes.length : Math.max(1, state.steps.filter(s=>s.part===p && s.type!=="prep").length);
+    parts.push({part:p, analysis:mergeAnalyses(an), transcript:takes.map(t=>t.transcript).filter(Boolean).join(" "), confs:takes.flatMap(t=>t.confs||[]), takes, qCount});
+  }
+  if(whisperErr) errors.push("Whisper 轉文字稿沒有成功（可能是網路或瀏覽器不支援），這次改用瀏覽器的語音辨識或你貼上的文字稿。");
+  const sc = computeScores(parts);
+  state.result = {parts, sc, errors};
+  saveHistory();
+  renderResults();
+  if(aiAvailable() && sc.hasText) runAI();
+}
+function overallOf(){
+  const sc=state.result.sc, ai=state.ai;
+  const loc = k => sc[k]?.band ?? null;
+  // with Claude: fluency/coherence combines the audio measures with Claude's reading of coherence; LR and GRA use Claude's bands
+  const fc = ai?.fc?.band!=null && loc("fcAudio")!=null ? fit([{band:sc.fcAudio.raw},{band:ai.fc.band}]).band : (ai?.fc?.band ?? loc("fc"));
+  const lr = ai?.lr?.band ?? loc("lr"), gra = ai?.gra?.band ?? loc("gra"), pr = loc("pr");
+  const vals=[fc,lr,gra,pr];
+  const mean = vals.every(v=>v!=null) ? vals.reduce((a,b)=>a+b,0)/4 : null;
+  return {fc, lr, gra, pr, mean, overall: mean!=null ? ieltsRound(mean) : null};
+}
+function saveHistory(){
+  const sc=state.result.sc; const o=overallOf();
+  const h=store.get("ielts.history",[]);
+  const names={full:"完整",p1:"Part 1",p2:"Part 2",p23:"Part 2+3"};
+  const d=new Date(); const entry={date:`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`, kind:names[state.test.kind]||"", overall:o.overall, flu:o.fc, lr:o.lr, gra:o.gra, pron:o.pr, wpm:sc.wpm, id:Date.now()};
+  state.histId=entry.id; h.push(entry); store.set("ielts.history",h.slice(-40));
+}
+function updateHistory(){ const h=store.get("ielts.history",[]); const e=h.find(x=>x.id===state.histId); if(e){ const o=overallOf(); Object.assign(e,{overall:o.overall,flu:o.fc,lr:o.lr,gra:o.gra,pron:o.pr}); store.set("ielts.history",h); } }
+
+function scaleHtml(v, ticks, min, max){
+  const pos = x => Math.max(0,Math.min(100,(x-min)/(max-min)*100));
+  return `<div class="scale" aria-hidden="true"><div class="track"></div>${ticks.map(([x,l])=>`<div class="tick" style="left:${pos(x)}%"><span>${esc(l)}</span></div>`).join("")}${v!=null&&isFinite(v)?`<div class="you" style="left:${pos(v)}%"></div>`:""}</div>`;
+}
+function chip(v, na="需文字稿"){ return v==null ? `<span class="chip na">${na}</span>` : `<span class="chip">${Number.isInteger(v)?v:v.toFixed(1)}</span>`; }
+function indTable(f){
+  if(!f?.inds?.length) return "";
+  return `<div class="tbl"><table class="metrics"><tr><th>指標</th><th>你的數值</th><th>對應分數</th></tr>
+    ${f.inds.map(i=>{ const [t,c]=bandState(i.band); return `<tr><td>${esc(i.label)} <span class="tag ${i.src==="audio"?"audio":"rough"}">${i.src==="audio"?"錄音":"文字稿"}</span><div class="small muted">${esc(i.sub||"")}</div></td><td class="num">${esc(i.value)}</td><td>${i.band!=null&&isFinite(i.band)?`<span class="state ${c}">${fmt1(i.band)}</span>`:`<span class="small muted">${i.value&&i.value!=="—"?"參考":"無資料"}</span>`}</td></tr>`; }).join("")}
+  </table></div>
+  ${f.caps.length?`<div class="stack" style="gap:4px">${f.caps.map(c=>`<div class="notice small">上限 ${c.max} 分：${esc(c.reason)}</div>`).join("")}</div>`:""}`;
+}
+function critCard(title, f, extra, aiNote){
+  return `<section class="card"><div class="row" style="justify-content:space-between"><h2>${title}</h2>${chip(f?.band??null, "無資料")}</div>${aiNote||""}${indTable(f)}${extra||""}</section>`;
+}
+
+function renderResults(){
+  const {parts, sc, errors} = state.result; const ai=state.ai; const o=overallOf();
+  if(!sc.A){
+    render(`<section class="card"><h2>沒有偵測到說話聲</h2><p>錄音可能太小聲或是空白。請靠近麥克風再試一次，或確認上傳的是正確的檔案。</p>${errors.map(e=>`<p class="err">${esc(e)}</p>`).join("")}<div class="row"><button class="primary" id="homeBtn">回首頁</button></div></section>`);
+    $("#homeBtn").onclick=renderHome; return;
+  }
+  const aiPending = aiAvailable() && sc.hasText && !ai && !state.aiErr;
+  const src = k => ai?.[k]?.band!=null ? `<span class="tag ai">Claude</span>` : `<span class="tag rough">本機估算</span>`;
+  const lg = sc.lg;
+  render(`
+  ${errors.map(e=>`<div class="notice">${esc(e)}</div>`).join("")}
+  <section class="card">
+    <span class="eyebrow">預估口說成績</span>
+    <div class="band-hero">
+      <div class="band-num">${o.overall!=null?o.overall.toFixed(1):"—"}</div>
+      <p class="muted small" style="flex:1;min-width:200px">${o.overall!=null?`四項平均 ${o.mean.toFixed(2)}，依官方規則取到 0.5（.25 進位到 .5、.75 進位到下一個整數）。`+(aiPending?"Claude 評完詞彙和文法後會自動更新。":""):"總分需要四項都有分數。"+(sc.hasText?"":" 詞彙和文法需要英文文字稿才能評分"+(env.live?"，這次沒有產生文字稿，建議用 Chrome。":"，請回到上傳頁貼上錄音 App 的文字稿。"))}</p>
+    </div>
+    <div>
+      <div class="crit"><span class="name">流暢與連貫</span>${chip(o.fc,"無資料")}<span class="how"><span class="tag audio">錄音</span>${sc.hasText?` ＋ <span class="tag rough">文字稿</span>`:""}${ai?.fc?` ＋ <span class="tag ai">Claude</span>`:""}</span></div>
+      <div class="crit"><span class="name">詞彙</span>${chip(o.lr)}<span class="how">${sc.hasText?src("lr"):"需要英文文字稿"}${aiPending?" Claude 評分中…":""}</span></div>
+      <div class="crit"><span class="name">文法</span>${chip(o.gra)}<span class="how">${sc.hasText?src("gra"):"需要英文文字稿"}${aiPending?" Claude 評分中…":""}</span></div>
+      <div class="crit"><span class="name">發音</span>${chip(o.pr,"無資料")}<span class="how"><span class="tag audio">錄音</span> 粗略：聽不出個別音</span></div>
+    </div>
+    <p class="small muted">每一項都依官方規則給整數分數：要「完全符合」某個分數段的特徵才給那一分，所以最弱的指標會把該項往下拉，最多只能比最弱的指標高 1 分。</p>
+  </section>
+
+  ${critCard("流暢與連貫", sc.fc, `<div><div class="small muted">語速落點（字/分鐘）</div>${scaleHtml(sc.wpm,[[95,"B1 ≈95"],[118,"B2 118"],[142,"C1 142"],[174,"母語 174"]],60,190)}</div>
+    <p class="small muted">官方說明：8 分以上的停頓應該是在想內容，不是在找字或想文法。本機分不出停頓的原因，只看次數和長度。</p>`,
+    ai?.fc?`<p class="small"><span class="tag ai">Claude</span> 連貫性 ${ai.fc.band} 分，和錄音數據合併成本項分數。</p>`:"")}
+  ${sc.lr?critCard("詞彙", sc.lr, lg.rareWords.length?`<p class="small"><span class="muted">你用到的較少見字：</span>${lg.rareWords.map(esc).join("、")}</p>`:"",
+    ai?.lr?`<p class="small"><span class="tag ai">Claude</span> 給 ${ai.lr.band} 分，總分用 Claude 的分數；下面是本機統計（${sc.lr.band} 分）供參考。</p>`:""):""}
+  ${sc.gra?critCard("文法", sc.gra, `<div class="row" style="gap:6px">${Object.entries(lg.feats).map(([k,v])=>`<span class="state ${v?"good":"warn"}">${v?"✓":"✗"} ${k}</span>`).join("")}</div>
+    ${lg.errors.length?`<div class="stack" style="gap:6px"><h3>可能的文法錯誤</h3>${lg.errors.slice(0,8).map(e=>`<div class="fix"><span><s>${esc(e.original)}</s></span><span class="small muted">${esc(e.note)}</span></div>`).join("")}</div>`:`<p class="small muted">沒有抓到常見的文法錯誤。這裡只檢查十多種固定錯誤，沒抓到不代表沒有錯。</p>`}`,
+    ai?.gra?`<p class="small"><span class="tag ai">Claude</span> 給 ${ai.gra.band} 分，總分用 Claude 的分數；下面是本機統計（${sc.gra.band} 分）供參考。</p>`:""):""}
+  ${critCard("發音", sc.pr, `<p class="small muted">官方說明：口音本身不扣分，看的是別人聽懂你要多費力，以及重音、語調、連音等發音特徵用得好不好。建議回放錄音，把文字稿的句子點「聽示範」跟著唸。</p>`)}
+
+  <section class="card" id="aiBox">${aiHtml()}</section>
+
+  <section class="card">
+    <h2>錄音與文字稿</h2>
+    ${parts.map(p=>`<div class="stack"><h3>Part ${p.part}</h3>
+      ${p.takes.map((t,k)=>`<div class="stack" style="gap:6px">${t.q?`<div class="small"><b>Q${k+1}.</b> ${esc(t.q)}</div>`:""}${t.url?`<audio controls preload="none" src="${t.url}"></audio>`:""}
+        ${t.whisper?.words?.length && !t.userTranscript?`<div class="transcript">${whisperHtml(t.whisper.words)}</div>`:t.transcript?`<div class="transcript">${highlightFillers(t.transcript)}</div><div><button class="ghost small" data-say="${esc(t.transcript)}">聽示範</button></div>`:`<div class="small muted">沒有文字稿</div>`}</div>`).join("")}
+    </div>`).join("")}
+    <p class="small muted">標色的是填充詞和重複字。${state.result.parts.some(p=>p.takes.some(t=>t.whisper?.words?.length))?`<span class="pz">/</span> 是句子之間的停頓，<span class="pz mid">‖</span> 是句子中間的停頓（多半在找字），游標停在上面可以看秒數。`:""}語音辨識常會自動略過 um、uh，實際次數可能更多。</p>
+  </section>
+
+  <div class="row"><button class="primary" id="againBtn">再考一次</button><button id="homeBtn">回首頁</button></div>
+  `);
+  document.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>{ const o=settings.tts; settings.tts=true; speak(b.dataset.say).then(()=>settings.tts=o); });
+  $("#againBtn").onclick=()=>startTest(state.test.kind);
+  $("#homeBtn").onclick=renderHome;
+  bindAI();
+}
+
+/* ---------- Claude feedback ---------- */
+function buildPrompt(){
+  const {parts, sc}=state.result;
+  const lines = parts.map(p=>`=== Part ${p.part} ===\n`+p.takes.map((t,k)=>(t.q?`Q${k+1}: ${t.q}\n`:"")+`A: ${t.transcript||"(no transcript)"}`).join("\n\n")).join("\n\n");
+  return `You are a certified IELTS Speaking examiner. Rate this candidate strictly by the public IELTS Speaking band descriptors.
+
+Rating rules (current public band descriptors):
+- Give each criterion a WHOLE band from 1 to 9. A candidate must fully fit the positive features of a band to be awarded it. Rate the average performance across all parts of the test.
+- Fluency and Coherence. 8: only very occasional repetition or self-correction; hesitation mostly content-related; topic development coherent and relevant. 7: readily produces long turns without noticeable effort; some language-related hesitation, repetition or self-correction that does not affect coherence; flexible use of discourse markers and connectives. 6: willing to produce long turns; coherence may be lost at times; range of discourse markers, not always appropriate. 5: relies on repetition, self-correction and/or slow speech; overuse of certain discourse markers; complex speech causes disfluency. 4: noticeable pauses, repetitious use of connectives, some breakdowns in coherence.
+- Lexical Resource. 8: wide resource used readily and flexibly; skilful use of less common and idiomatic items despite occasional inaccuracies. 7: flexible on a variety of topics; some less common and idiomatic items, awareness of style and collocation; effective paraphrase. 6: sufficient to discuss topics at length; meaning clear despite inappropriacies; generally paraphrases successfully. 5: limited flexibility; paraphrase not always successful. 4: basic meaning only on unfamiliar topics; frequent errors in word choice.
+- Grammatical Range and Accuracy. 8: wide range flexibly used; the majority of sentences error-free. 7: a range of structures flexibly used; error-free sentences are frequent; a few basic errors persist. 6: mix of short and complex forms with limited flexibility; errors frequent in complex structures but rarely impede communication. 5: basic forms fairly well controlled; complex structures limited and nearly always contain errors. 4: subordinate clauses rare, turns short, structures repetitive, errors frequent.
+- Key indicators also include verb-phrase complexity (continuous/perfect aspect, modality, passive), noun-phrase modification, error density and the communicative effect of errors.
+- Do not rate pronunciation (you cannot hear the audio). Do not rate ideas, opinions or creativity.
+- The transcripts come from automatic speech recognition: ignore punctuation and capitalisation and do not penalise words that look like recognition errors. Filled pauses like "um" are often dropped.
+
+Audio measurements from the app:
+- speech rate: ${Math.round(sc.wpm)} words/min (B2 learners ≈118, C1 ≈142, native ≈174)
+- long pauses (≥1 s): ${fmt1(sc.longPausesPerMin)} per minute; mean length of run: ${fmt1(sc.mlr)} words
+- audio-only fluency estimate: band ${sc.fcAudio?.band ?? "n/a"}
+${sc.p2Speak!=null?`- Part 2 speaking time: ${Math.round(sc.p2Speak)} seconds (expected 1–2 minutes)\n`:""}
+${lines}
+
+Return JSON only. Write every comment in Traditional Chinese (繁體中文) and keep English examples in English:
+{
+ "fc": {"band": integer, "comment": "coherence, linking and topic development, with what holds the band down"},
+ "lr": {"band": integer, "comment": "...", "upgrades": [{"original": "phrase they used", "better": "more precise or idiomatic alternative", "note": "why"}]},
+ "gra": {"band": integer, "comment": "...", "errors": [{"original": "...", "corrected": "...", "note": "..."}]},
+ "tips": ["three concrete things to practise next"]
+}
+"fc.band" judges coherence and development from the transcript, taking the audio measurements into account. Give up to 5 upgrades and up to 6 errors, choosing the most useful ones.`;
+}
+async function runAI(){
+  state.aiErr=null; state.ai=null; const box=$("#aiBox"); if(box){ box.innerHTML=aiHtml(true); }
+  try{
+    const v = env.sample ? await env.sample.json(buildPrompt(), {modelTier:"default"}) : await gradeWithApi(buildPrompt());
+    if(!v || typeof v!=="object") throw {code:"invalid_json"};
+    const nb = b => (typeof b==="number" && isFinite(b)) ? Math.round(clampBand(b)) : null;
+    ["fc","lr","gra"].forEach(k=>{ if(v[k]) v[k].band=nb(v[k].band); });
+    state.ai=v; updateHistory();
+  }catch(e){
+    state.aiErr = e?.code==="not_granted" ? "沒有取得使用 Claude 的權限，可以改用下方的「複製評分指令」。"
+      : e?.code==="rate_limited" ? "使用次數暫時達到上限，請稍後再按一次。"
+      : e?.code==="auth" ? "API 金鑰無效，請回首頁的「Claude 評分」重新輸入。"
+      : e?.code==="credit" ? "API 帳戶的額度不足，請到 Anthropic Console 儲值後再試。"
+      : e?.code==="network" ? "連不上 Claude API，請檢查網路後再試一次。"
+      : e?.code==="refusal" ? "Claude 這次沒有給出評分，可以再試一次。"
+      : "這次評分沒有成功，可以再試一次，或改用「複製評分指令」。";
+  }
+  if(state.view==="results") renderResults();
+}
+const GRADE_SCHEMA = (()=>{ const item = props => ({type:"object", additionalProperties:false, required:Object.keys(props), properties:props});
+  const str = {type:"string"};
+  return item({
+    fc: item({band:{type:"integer"}, comment:str}),
+    lr: item({band:{type:"integer"}, comment:str, upgrades:{type:"array", items:item({original:str, better:str, note:str})}}),
+    gra: item({band:{type:"integer"}, comment:str, errors:{type:"array", items:item({original:str, corrected:str, note:str})}}),
+    tips: {type:"array", items:str},
+  }); })();
+let AnthropicSDK = null;
+async function gradeWithApi(prompt){
+  if(!AnthropicSDK){ try{ AnthropicSDK = (await import("https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.133.0/+esm")).default; }catch(e){ throw {code:"network"}; } }
+  const client = new AnthropicSDK({ apiKey, dangerouslyAllowBrowser: true, maxRetries: 2 });
+  let resp;
+  try{
+    resp = await client.beta.messages.create({
+      model: "claude-opus-5-5",
+      max_tokens: 16000,
+      betas: ["server-side-fallback-2026-07-01"],
+      fallbacks: "default",
+      output_config: { effort: "medium", format: { type: "json_schema", schema: GRADE_SCHEMA } },
+      messages: [{ role: "user", content: prompt }],
+    });
+  }catch(e){
+    if(e instanceof AnthropicSDK.AuthenticationError || e instanceof AnthropicSDK.PermissionDeniedError) throw {code:"auth"};
+    if(e instanceof AnthropicSDK.RateLimitError) throw {code:"rate_limited"};
+    if(e instanceof AnthropicSDK.BadRequestError && /credit|balance|billing/i.test(e.message||"")) throw {code:"credit"};
+    if(e instanceof AnthropicSDK.APIConnectionError) throw {code:"network"};
+    throw {code:"upstream_error"};
+  }
+  if(resp.stop_reason === "refusal") throw {code:"refusal"};
+  const text = resp.content.filter(b=>b.type==="text").map(b=>b.text).join("");
+  try{ return JSON.parse(text); }catch(e){ throw {code:"invalid_json"}; }
+}
+function aiHtml(loading){
+  const sc=state.result.sc, ai=state.ai;
+  if(!sc.hasText) return `<h2>詞彙與文法</h2><p class="muted">需要英文文字稿才能評詞彙和文法。${env.live?"這個瀏覽器的語音辨識沒有產生文字稿，建議改用 Chrome。":"回到上傳頁面貼上錄音 App 產生的文字稿即可。"}</p>`;
+  if(loading || (aiAvailable() && !ai && !state.aiErr)) return `<h2>Claude 評語</h2><p class="muted">Claude 正在閱讀你的文字稿，評詞彙、文法和連貫性…</p>`;
+  if(ai) return `<h2>Claude 評語</h2>
+    ${ai.fc?.comment?`<div class="stack" style="gap:4px"><h3>連貫性 · ${ai.fc.band??"—"}</h3><p>${esc(ai.fc.comment)}</p></div>`:""}
+    ${ai.lr?`<div class="stack" style="gap:6px"><h3>詞彙 · ${ai.lr.band??"—"}</h3><p>${esc(ai.lr.comment)}</p>${(ai.lr.upgrades||[]).map(u=>`<div class="fix"><span><s>${esc(u.original)}</s> → <b>${esc(u.better)}</b></span><span class="small muted">${esc(u.note)}</span></div>`).join("")}</div>`:""}
+    ${ai.gra?`<div class="stack" style="gap:6px"><h3>文法 · ${ai.gra.band??"—"}</h3><p>${esc(ai.gra.comment)}</p>${(ai.gra.errors||[]).map(u=>`<div class="fix"><span><s>${esc(u.original)}</s> → <b>${esc(u.corrected)}</b></span><span class="small muted">${esc(u.note)}</span></div>`).join("")}</div>`:""}
+    ${ai.tips?.length?`<div class="stack" style="gap:4px"><h3>下次練習重點</h3><ul class="fb-list">${ai.tips.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`:""}
+    <p class="small muted">Claude 只讀得到文字稿，聽不到聲音，發音分數不是它給的。</p>`;
+  return `<h2>${state.aiErr?"Claude 評語":"詞彙、文法與連貫性"}</h2>
+    ${state.aiErr?`<p class="err">${esc(state.aiErr)}</p><div class="row"><button id="aiRetry">再試一次</button></div>`:`<p class="muted">按下面的按鈕複製評分指令，貼到 Claude 對話裡，就能拿到詞彙、文法和連貫性的分數與修改建議。</p>`}
+    <div class="row"><button class="primary" id="copyPrompt">複製評分指令</button><span id="copyMsg" class="small"></span></div>
+    <textarea id="promptBox" readonly hidden></textarea>`;
+}
+function bindAI(){
+  const r=$("#aiRetry"); if(r) r.onclick=runAI;
+  const c=$("#copyPrompt");
+  if(c) c.onclick=async()=>{
+    const text=buildPrompt();
+    try{ await navigator.clipboard.writeText(text); $("#copyMsg").innerHTML=`<span class="ok">已複製，貼到 Claude 就可以了。</span>`; }
+    catch(e){ const b=$("#promptBox"); b.hidden=false; b.value=text; b.style.minHeight="200px"; b.focus(); b.select(); $("#copyMsg").textContent="無法自動複製，已幫你選取文字，請手動複製。"; }
+  };
+}
+
+/* ===================== Boot ===================== */
+renderHome();
+(async()=>{ try{ if(window.claude?.use){ env.sample = await window.claude.use("sample"); } }catch(e){ env.sample=null; } if(env.sample && state.view==="home") renderHome(); })();
+probeMic().then(ok=>{ env.live=ok; setModePill(); if(state.view==="home") renderHome(); });
+if(env.tts){ try{ speechSynthesis.onvoiceschanged=()=>{ if(state.view==="home") renderHome(); }; }catch(e){} }
+</script>
+
+</body></html>
